@@ -1,3 +1,5 @@
+"""Test performance of pandantic on a small dataset."""
+
 import logging
 from pathlib import Path
 from timeit import timeit
