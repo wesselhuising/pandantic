@@ -1,0 +1,71 @@
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: run black formatter
+        entry: black
+        language: system
+        types: [python]
+        require_serial: true
+        args: [--check, --diff , --config, pyproject.toml]
+      - id: check-added-large-files
+        name: check for added large files
+        entry: check-added-large-files
+        language: system
+      - id: check-toml
+        name: check toml
+        entry: check-toml
+        language: system
+        types: [toml]
+      - id: check-yaml
+        name: check yaml
+        entry: check-yaml
+        language: system
+        types: [yaml]
+        args: ['--unsafe']
+      - id: check-json
+        name: check json
+        entry: check-json
+        language: system
+        types: [json]
+      - id: check-merge-conflict
+        name: checks for files that contain merge conflict strings
+        entry: check-merge-conflict
+        language: system
+      - id: end-of-file-fixer
+        name: fix end of files
+        entry: end-of-file-fixer
+        language: system
+        types: [text]
+        stages: [commit, push, manual]
+      - id: trailing-whitespace
+        name: trim trailing Whitespace
+        entry: trailing-whitespace-fixer
+        language: system
+        types: [text]
+        stages: [commit, push, manual]
+      - id: mypy
+        name: run mypy
+        entry: bash -c 'mypy --show-error-codes src/'
+        language: system
+      - id: isort
+        name: sort imports
+        entry: isort
+        require_serial: true
+        language: system
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        args:
+          [
+            "-rn", # Only display messages
+            "-sn", # Don't display the score
+            "src", # Only source code, skip tests folder
+          ]
+      - id: safety
+        name: check for vulnerable dependencies with Safety
+        entry: safety
+        language: system
+        args: [./pyproject.toml]
