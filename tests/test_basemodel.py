@@ -1,8 +1,9 @@
+"""Test the BaseModel class."""
 import pandas as pd
 import pytest
 from pydantic.types import StrictInt
 
-from pydfntic import BaseModel
+from pandantic import BaseModel
 
 
 def test_dataframe_invalid_raise():
@@ -26,7 +27,7 @@ def test_dataframe_invalid_raise():
     with pytest.raises(ValueError):
         # WHEN
         DataFrameSchema.parse_df(
-            df=example_df_invalid,
+            dataframe=example_df_invalid,
             errors="raise",
         )
 
@@ -50,7 +51,7 @@ def test_dataframe_invalid_filter_strict_int():
 
     # GIVEN
     df_valid_filtered = DataFrameSchema.parse_df(
-        df=example_df_invalid,
+        dataframe=example_df_invalid,
         errors="filter",
     )
 

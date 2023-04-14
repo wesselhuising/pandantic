@@ -1,17 +1,18 @@
 [tool.poetry]
-name = "pydfntic"
+name = "pandantic"
 version = "0.1.0"
 description = ""
 authors = ["wessel.huising <wessel.huising@mollie.com>"]
 readme = "README.md"
 
 packages = [
-    { include = "pydfntic", from = "src" }
+    { include = "pandantic", from = "src" }
 ]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 pandas = "^2.0.0"
+pydantic = "2.0a2"
 
 
 [tool.poetry.group.dev.dependencies]

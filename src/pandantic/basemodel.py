@@ -16,8 +16,9 @@ class PandanticBaseModel(BaseModel):
         """Validate a DataFrame using the schema defined in the Pydantic model.
 
         Args:
-            df (pd.DataFrame): The DataFrame to validate.
+            dataframe (pd.DataFrame): The DataFrame to validate.
             errors (str, optional): How to handle validation errors. Defaults to "raise".
+            verbose (bool, optional): Whether to log validation errors. Defaults to True.
 
         Returns:
             pd.DataFrame: The DataFrame with valid rows in case of errors="filter".
