@@ -1,5 +1,8 @@
 """A subclass of the Pydantic BaseModel that adds a parse_df method to validate DataFrames."""
+from __future__ import annotations
+
 import logging
+from typing import Any
 
 import pandas as pd
 from pydantic import BaseModel
@@ -11,13 +14,18 @@ class PandanticBaseModel(BaseModel):
 
     @classmethod
     def parse_df(
-        cls, dataframe: pd.DataFrame, errors: str = "raise", verbose: bool = True
+        cls,
+        dataframe: pd.DataFrame,
+        errors: str = "raise",
+        context: dict[str, Any] | None = None,
+        verbose: bool = True,
     ) -> pd.DataFrame:
         """Validate a DataFrame using the schema defined in the Pydantic model.
 
         Args:
             dataframe (pd.DataFrame): The DataFrame to validate.
             errors (str, optional): How to handle validation errors. Defaults to "raise".
+            context (Optional[dict[str, Any], None], optional): The context to use for validation.
             verbose (bool, optional): Whether to log validation errors. Defaults to True.
 
         Returns:
@@ -26,7 +34,10 @@ class PandanticBaseModel(BaseModel):
         error_logs = {}
         for index, row in enumerate(dataframe.to_dict("records")):
             try:
-                cls(**row)  # type: ignore
+                cls.model_validate(
+                    obj=row,
+                    context=context,
+                )
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 if verbose:
                     logging.info("Validation error found at index %s\n%s", index, exc)

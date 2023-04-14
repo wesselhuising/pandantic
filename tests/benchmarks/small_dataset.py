@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 logging.info("loading dataset.")
 df_test = pd.read_csv(
-    filepath_or_buffer=Path(__file__).parent.parent / "artefacts" / "test.csv",
+    filepath_or_buffer=Path(__file__).parent.parent.parent / "artefacts" / "test.csv",
 )
 logging.info("shape of df_test: %s", df_test.shape)
 
@@ -33,9 +33,9 @@ logging.info("starting validation.")
 print(
     timeit(
         lambda: DataFrameSchema.parse_df(dataframe=df_test, errors="filter"),
-        number=10000,
+        number=1000,
     )
-    / 10000
+    / 1000
 )
 logging.info("finished validation.")
 
