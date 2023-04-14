@@ -20,15 +20,15 @@ class DataFrameSchema(BaseModel):
 
     @field_validator("example_str")
     def validate_country_in_list(  # pylint: disable=invalid-name, no-self-argument
-        cls, x: str, context: dict
+        cls, x: str
     ) -> int:
-        """Validate that the country is in the list of countries."""
-        if x not in context["countries"]:
+        """Example custom validator to validate if int is even."""
+        if x not in COUNTRY_LIST:
             raise ValidationError(f"example_str must be part of country list, is {x}.")
         return x
 
 
-def test_custom_validator_context_pass():
+def test_custom_validator_global_list_str_pass():
     """Test that a custom validator passes."""
 
     # GIVEN
@@ -43,15 +43,13 @@ def test_custom_validator_context_pass():
     df_valid = DataFrameSchema.parse_df(
         dataframe=example_df_valid,
         errors="filter",
-        context={"countries": COUNTRY_LIST},
     )
 
     # THEN
-    print(df_valid)
     assert df_valid.equals(example_df_valid)
 
 
-def test_custom_validator_context_fail_filter():
+def test_custom_validator_global_list_str_fail_filter():
     """Test that a custom validator fails."""
 
     # GIVEN
@@ -66,14 +64,13 @@ def test_custom_validator_context_fail_filter():
     df_invalid = DataFrameSchema.parse_df(
         dataframe=example_df_invalid,
         errors="filter",
-        context={"countries": COUNTRY_LIST},
     )
 
     # THEN
     assert df_invalid.equals(example_df_invalid.drop(index=[2]))
 
 
-def test_custom_validator_context_fail_raise():
+def test_custom_validator_global_list_str_fail_raise():
     """Test that a custom validator fails."""
 
     # GIVEN
@@ -90,5 +87,6 @@ def test_custom_validator_context_fail_raise():
         DataFrameSchema.parse_df(
             dataframe=example_df_invalid,
             errors="raise",
-            context={"countries": COUNTRY_LIST},
         )
+
+    assert 0
