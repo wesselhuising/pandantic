@@ -39,4 +39,5 @@ print(
 )
 logging.info("finished validation.")
 
-# logging.info("shape of df_valid: %s", df_valid.shape)
+df_valid = DataFrameSchema.parse_df(dataframe=df_test, errors="filter")
+logging.info("shape of df_valid: %s", df_valid.shape)
