@@ -46,7 +46,7 @@ class PandanticBaseModel(BaseModel):
         if len(error_logs) > 0 and errors == "raise":
             raise ValueError(f"{len(error_logs)} validation errors found in dataframe.")
         if len(error_logs) > 0 and errors == "filter":
-            return dataframe.drop(index=list(error_logs.keys()))
+            return dataframe[~dataframe.index.isin(list(error_logs.keys()))]
 
         return dataframe
 
