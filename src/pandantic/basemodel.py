@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
 
 import pandas as pd
+from multiprocess import Pool  # type: ignore
 from pydantic import BaseModel
-from pydantic.types import StrictInt
 
 
 class PandanticBaseModel(BaseModel):
@@ -31,57 +32,74 @@ class PandanticBaseModel(BaseModel):
         Returns:
             pd.DataFrame: The DataFrame with valid rows in case of errors="filter".
         """
-        error_logs = {}
-        for index, row in enumerate(dataframe.to_dict("records")):
-            try:
-                cls.model_validate(
-                    obj=row,
-                    context=context,
+        errors_index = []
+        logging.info("Amount of available cores: %s", os.cpu_count())
+        n_jobs = 1
+        if n_jobs != 1:
+            with Pool(n_jobs) as pool:  # pylint: disable=not-callable
+                res = pool.map(
+                    cls._validate_row,
+                    [
+                        {
+                            "index": index,
+                            "row": row,
+                            "context": context,
+                            "verbose": verbose,
+                        }
+                        for index, row in enumerate(dataframe.to_dict("records"))
+                    ],
+                    chunksize=1000,
                 )
-            except Exception as exc:  # pylint: disable=broad-exception-caught
-                if verbose:
-                    logging.info("Validation error found at index %s\n%s", index, exc)
-                error_logs[index] = exc
 
-        if len(error_logs) > 0 and errors == "raise":
-            raise ValueError(f"{len(error_logs)} validation errors found in dataframe.")
-        if len(error_logs) > 0 and errors == "filter":
-            return dataframe[~dataframe.index.isin(list(error_logs.keys()))]
+            errors_index = [x for x in res if x is not None]
+        else:
+            for index, row in enumerate(dataframe.to_dict("records")):
+                try:
+                    cls.model_validate(
+                        obj=row,
+                        context=context,
+                    )
+                except Exception as exc:  # pylint: disable=broad-exception-caught
+                    if verbose:
+                        logging.info(
+                            "Validation error found at index %s\n%s", index, exc
+                        )
+                    # error_logs[index] = exc
+                    errors_index.append(index)
+
+        if len(errors_index) > 0 and errors == "raise":
+            raise ValueError(
+                f"{len(errors_index)} validation errors found in dataframe."
+            )
+        if len(errors_index) > 0 and errors == "filter":
+            return dataframe[~dataframe.index.isin(list(errors_index))]
 
         return dataframe
 
+    @classmethod
+    def _validate_row(  # type: ignore
+        cls,
+        args,
+    ) -> int | None:
+        """Validate a single row of a DataFrame.
 
-class DataFrameSchema(PandanticBaseModel):
-    """Example schema for testing."""
+        Args:
+            args (dict): The arguments to use for validation.
 
-    example_str: str
-    example_int: StrictInt
+        Returns:
+            int: The index of the row that failed validation.
+        """
+        try:
+            cls.model_validate(
+                obj=args["row"],
+                context=args["context"],
+            )
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            if args["verbose"]:
+                logging.info(
+                    "Validation error found at index %s\n%s", args["index"], exc
+                )
 
+            return int(args["index"])
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger("debug-logger")
-    logger.debug("Executing basemodel.py from pydfntic package.")
-
-    logger.debug("Type of DataFrameSchema: %s", type(DataFrameSchema))
-
-    example_df_valid = pd.DataFrame(
-        data={
-            "example_str": ["foo", "bar", "1"],
-            "example_int": [1, 2, 3],
-        }
-    )
-
-    example_df_invalid = pd.DataFrame(
-        data={
-            "example_str": ["foo", "bar", 1],
-            "example_int": ["1", 2, 3.0],
-        }
-    )
-
-    df_valid = DataFrameSchema.parse_df(example_df_valid)
-
-    assert df_valid.equals(example_df_valid)
-
-    df_invalid = DataFrameSchema.parse_df(example_df_invalid, errors="filter")
-    logging.info(df_invalid)
+        return None
