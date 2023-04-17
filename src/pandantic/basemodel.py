@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import logging
+import math
 import os
 from typing import Any
 
 import pandas as pd
-from multiprocess import Pool  # type: ignore
+from multiprocess import Process, Queue  # pylint: disable=no-name-in-module
 from pydantic import BaseModel
 
 
@@ -19,6 +20,7 @@ class PandanticBaseModel(BaseModel):
         dataframe: pd.DataFrame,
         errors: str = "raise",
         context: dict[str, Any] | None = None,
+        n_jobs: int = 1,
         verbose: bool = True,
     ) -> pd.DataFrame:
         """Validate a DataFrame using the schema defined in the Pydantic model.
@@ -27,31 +29,47 @@ class PandanticBaseModel(BaseModel):
             dataframe (pd.DataFrame): The DataFrame to validate.
             errors (str, optional): How to handle validation errors. Defaults to "raise".
             context (Optional[dict[str, Any], None], optional): The context to use for validation.
+            n_jobs (int, optional): The number of processes to use for validation. Defaults to 1.
             verbose (bool, optional): Whether to log validation errors. Defaults to True.
 
         Returns:
             pd.DataFrame: The DataFrame with valid rows in case of errors="filter".
         """
         errors_index = []
-        logging.info("Amount of available cores: %s", os.cpu_count())
-        n_jobs = 1
-        if n_jobs != 1:
-            with Pool(n_jobs) as pool:  # pylint: disable=not-callable
-                res = pool.map(
-                    cls._validate_row,
-                    [
-                        {
-                            "index": index,
-                            "row": row,
-                            "context": context,
-                            "verbose": verbose,
-                        }
-                        for index, row in enumerate(dataframe.to_dict("records"))
-                    ],
-                    chunksize=1000,
-                )
+        logging.debug("Amount of available cores: %s", os.cpu_count())
 
-            errors_index = [x for x in res if x is not None]
+        if n_jobs != 1:
+            if n_jobs < 0:
+                n_jobs = os.cpu_count()  # type: ignore
+
+            chunks = []
+            chunk_size = math.floor(len(dataframe) / n_jobs)
+            num_chunks = len(dataframe) // chunk_size + 1
+
+            q = Queue()
+
+            dataframe["_index"] = dataframe.index
+            for i in range(num_chunks):
+                chunks.append(dataframe.iloc[i * chunk_size : (i + 1) * chunk_size])
+
+            for i in range(num_chunks):
+                p = Process(  # pylint: disable=not-callable
+                    target=cls._validate_row, args=(chunks[i], q), daemon=True
+                )
+                p.start()
+
+            num_stops = 0
+            for i in range(num_chunks):
+                while True:
+                    index = q.get()
+                    if index is None:
+                        num_stops += 1
+                        break
+
+                    errors_index.append(index)
+
+                if num_stops == num_chunks:
+                    break
         else:
             for index, row in enumerate(dataframe.to_dict("records")):
                 try:
@@ -64,7 +82,7 @@ class PandanticBaseModel(BaseModel):
                         logging.info(
                             "Validation error found at index %s\n%s", index, exc
                         )
-                    # error_logs[index] = exc
+
                     errors_index.append(index)
 
         if len(errors_index) > 0 and errors == "raise":
@@ -77,29 +95,36 @@ class PandanticBaseModel(BaseModel):
         return dataframe
 
     @classmethod
-    def _validate_row(  # type: ignore
+    def _validate_row(
         cls,
-        args,
-    ) -> int | None:
+        chunk: pd.DataFrame,
+        q: Queue,
+        context: dict[str, Any] | None = None,
+        verbose: bool = True,
+    ) -> None:
         """Validate a single row of a DataFrame.
 
         Args:
-            args (dict): The arguments to use for validation.
-
-        Returns:
-            int: The index of the row that failed validation.
+            chunk (pd.DataFrame): The DataFrame chunk to validate.
+            q (Queue): The queue to put the index of the row in case of an error.
+            context (Optional[dict[str, Any], None], optional): The context to use for validation.
+            verbose (bool, optional): Whether to log validation errors. Defaults to True.
         """
-        try:
-            cls.model_validate(
-                obj=args["row"],
-                context=args["context"],
-            )
-        except Exception as exc:  # pylint: disable=broad-exception-caught
-            if args["verbose"]:
-                logging.info(
-                    "Validation error found at index %s\n%s", args["index"], exc
+        logging.debug("Process started.")
+
+        for row in chunk.to_dict("records"):
+            try:
+                cls.model_validate(
+                    obj=row,
+                    context=context,
                 )
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                if verbose:
+                    logging.info(
+                        "Validation error found at index %s\n%s", row["_index"], exc
+                    )
 
-            return int(args["index"])
+                q.put(row["_index"])
 
-        return None
+        logging.debug("Process ended.")
+        q.put(None)

@@ -34,7 +34,7 @@ if __name__ == "__main__":
             "DefTeamScore",
             "PlayType",
         ]
-    ]  # .loc[:1000]
+    ]  # .loc[:10000]
 
     print(df.shape)
     print(df.head())
@@ -57,12 +57,16 @@ if __name__ == "__main__":
     )
 
     df_valid_pandantic = dataframeschema.DataFrameSchema.parse_df(
-        dataframe=df, errors="filter"
+        dataframe=df,
+        errors="filter",
+        n_jobs=4,
     )
-    print("shape of df_valid_pandantic: %s", df_valid_pandantic.shape)
+    print(f"shape of df_valid_pandantic: {df_valid_pandantic.shape}")
 
     df_valid_pandera = pandera_validate(df)
-    print("shape of df_valid_pandera: %s", df_valid_pandera.shape)
+    print(f"shape of df_valid_pandera:   {df_valid_pandera.shape}")
+
+    # print(df_valid_pandera[~df_valid_pandera.index.isin(df_valid_pandantic.index)].dropna())
 
     assert (
         len(
@@ -74,24 +78,25 @@ if __name__ == "__main__":
         )
         == 0
     )
-    print(df.PlayType.unique())
 
     print(
         "pandantic is",
         timeit(
             lambda: dataframeschema.DataFrameSchema.parse_df(
-                dataframe=df, errors="filter"
+                dataframe=df,
+                errors="filter",
+                n_jobs=-1,
             ),
-            number=10,
+            number=5,
         )
-        / 10,
+        / 5,
     )
 
     print(
         "pandera is  ",
         timeit(
             lambda: pandera_validate(df),
-            number=10,
+            number=5,
         )
-        / 10,
+        / 5,
     )
