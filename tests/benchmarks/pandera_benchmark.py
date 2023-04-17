@@ -82,16 +82,16 @@ if __name__ == "__main__":
             lambda: dataframeschema.DataFrameSchema.parse_df(
                 dataframe=df, errors="filter"
             ),
-            number=10,
+            number=100,
         )
-        / 10,
+        / 100,
     )
 
     print(
         "pandera is  ",
         timeit(
             lambda: pandera_validate(df),
-            number=10,
+            number=100,
         )
-        / 10,
+        / 100,
     )
