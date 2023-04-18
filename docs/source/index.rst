@@ -2,7 +2,7 @@ Welcome to Pandantic's documentation!
 =====================================
 
 **Pandantic** introduces the ability to validate (``pandas``) DataFrames using
-``pydantic.BaseModel``s. The `pandantic` package is a fork of the ``2.x.x`` version of
+``pydantic.BaseModel``. The ``pandantic`` package is a fork of the ``2.x.x`` version of
 `pydantic` as it has significant improvements over its ``1.x.x`` versions
 (a performance increase up to 50 times).
 
