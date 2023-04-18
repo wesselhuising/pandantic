@@ -6,11 +6,11 @@ Usage
 Installation
 ------------
 
-To use Lumache, first install it using pip:
+To use Pandatic, first install it using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install lumache
+   (.venv) $ pip install pandantic
 
 Creating recipes
 ----------------
