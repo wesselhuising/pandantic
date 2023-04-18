@@ -3,7 +3,7 @@
 # -- Project information
 
 project = "Pandantic"
-copyright = "2022, Wessel Huising"  # pyl
+copyright = "2022, Wessel Huising"
 author = "Wessel Huising"
 
 release = "0.1"
