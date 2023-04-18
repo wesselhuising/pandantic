@@ -32,8 +32,8 @@ the ``BaseModel`` class from the ``pandantic`` package.
         example_int: StrictInt
 
 Let's try this schema on a simple ``pandas.DataFrame``. Use the class method
-```parse_df``` from the freshly defined ```DataFrameSchema``` and specify the
-```dataframe``` that should be validated using the arguments of the method.
+``parse_df`` from the freshly defined ``DataFrameSchema`` and specify the
+``dataframe`` that should be validated using the arguments of the method.
 
 .. code-block:: python
 

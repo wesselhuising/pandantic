@@ -14,4 +14,4 @@ API
 .. autosummary::
    :toctree: generated
 
-   pandantic.basemodel.PandanticBaseModel as BaseModel
+   pandantic.basemodel.PandanticBaseModel
