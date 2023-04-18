@@ -4,4 +4,14 @@ API
 .. autosummary::
    :toctree: generated
 
-   lumache
+   pandantic.BaseModel.parse_df
+
+.. autosummary::
+    :toctree: generated
+
+    pandantic.BaseModel
+
+.. autosummary::
+   :toctree: generated
+
+   pandantic.basemodel.PandanticBaseModel as BaseModel

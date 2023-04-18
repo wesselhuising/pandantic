@@ -1,5 +1,5 @@
 Welcome to Pandantic's documentation!
-===================================
+=====================================
 
 **Pandantic** introduces the ability to validate (`pandas`) DataFrames using
 `pydantic.BaseModel`s. The `pandantic` package is using the V2 version of
