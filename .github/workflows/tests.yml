@@ -2,6 +2,7 @@ name: Tests
 on: [push]
 jobs:
   pre-commit:
+    name: Run pre-commit on all files
     runs-on: ubuntu-latest
     steps:
     - name: Check out repository
@@ -30,6 +31,7 @@ jobs:
       run: poetry run pre-commit run --all-files
 
   pytest:
+    name: Run unit-tests using pytest
     runs-on: ubuntu-latest
     steps:
     - name: Check out repository
