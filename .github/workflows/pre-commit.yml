@@ -1,5 +1,4 @@
 name: pre-commit
-run-rame: GitHub Workflow to run pre-commit in the Poetry shell.
 on: [push]
 jobs:
   pre-commit:
