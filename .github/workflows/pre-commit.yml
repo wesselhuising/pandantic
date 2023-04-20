@@ -33,5 +33,7 @@ jobs:
     # venv as a `.venv` in your testing directory, which allows the next step to easily
     # cache it.
     - uses: snok/install-poetry@v1
+    - name: Install project
+      run: poetry install
     - name: Run pre-commit on all files
       run: poetry run pre-commit --all-files
