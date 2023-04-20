@@ -34,7 +34,9 @@ jobs:
     - name: Commit version update to branch
       run: |
         git add pyproject.toml
-        git commit -m "Change version in pyproject.tomll to ${{ github.event.release.tag_name }}"
+        git config user.email "github-runner@pandantic.io"
+        git config user.name "Pandantic GitHub Runner"
+        git commit -m "Change version in pyproject.toml to ${{ github.event.release.tag_name }}"
         git push origin main
 
     - name: Install package including dev dependencies using Poetry
