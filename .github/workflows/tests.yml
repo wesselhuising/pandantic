@@ -1,0 +1,49 @@
+name: pre-commit
+on: [push]
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: cache poetry install
+      uses: actions/cache@v3
+      with:
+        path: ~/.local
+        key: poetry-0
+
+    - uses: snok/install-poetry@v1
+    - name: Install project
+      run: poetry install
+    - name: Run pre-commit on all files
+      run: poetry run pre-commit run --all-files
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: cache poetry install
+      uses: actions/cache@v3
+      with:
+        path: ~/.local
+        key: poetry-0
+
+    - uses: snok/install-poetry@v1
+
+    - name: Install project
+      run: poetry install
+
+    - name: Run pytest tests
+      run: poetry run pytest tests

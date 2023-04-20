@@ -88,5 +88,3 @@ def test_custom_validator_context_fail_raise():
             dataframe=example_df_invalid,
             errors="raise",
         )
-
-    assert 0
