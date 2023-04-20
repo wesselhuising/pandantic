@@ -36,4 +36,4 @@ jobs:
     - name: Install project
       run: poetry install
     - name: Run pre-commit on all files
-      run: poetry run pre-commit --all-files
+      run: poetry run pre-commit run --all-files
