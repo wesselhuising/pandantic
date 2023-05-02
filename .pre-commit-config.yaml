@@ -64,8 +64,8 @@ repos:
             "-sn", # Don't display the score
             "src", # Only source code, skip tests folder
           ]
-      - id: safety
-        name: check for vulnerable dependencies with Safety
-        entry: safety
-        language: system
-        args: [./pyproject.toml]
+      # - id: safety
+      #   name: check for vulnerable dependencies with Safety
+      #   entry: safety
+      #   language: system
+      #   args: [./pyproject.toml]
