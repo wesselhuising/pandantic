@@ -27,20 +27,7 @@ jobs:
       if: steps.cached-poetry.outputs.cache-hit != 'true'
       uses: snok/install-poetry@v1
 
-    - name: Bump version to given tag in pyproject.toml
-      run: |
-        sed -i '0,/version =.*/s//version = "'"${{ github.event.release.tag_name }}"'"/' ./pyproject.toml
-
-    - name: Commit version update to branch
-      run: |
-        git add pyproject.toml
-        git config user.email "github-runner@pandantic.io"
-        git config user.name "Pandantic GitHub Runner"
-        git commit -m "Change version in pyproject.toml to ${{ github.event.release.tag_name }}"
-        git push origin main
-
-    - name: Install package including dev dependencies using Poetry
-      run: poetry install
-
     - name: Publish to TestPyPi
-      run: poetry publish --repository --build --username ${{ secrets.PYPI_API_TOKEN }} --dry-run
+      run: |
+        poetry version ${{ github.event.release.tag_name }}
+        poetry publish --build --username ${{ secrets.PYPI_API_TOKEN }} --dry-run
