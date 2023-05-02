@@ -14,8 +14,6 @@ python = "^3.9"
 pandas = "^2.0.0"
 pydantic = "2.0a2"
 multiprocess = "^0.70.14"
-dill = {git = "https://github.com/uqfoundation/dill.git"}
-
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.0"

@@ -123,22 +123,18 @@ files = [
 
 [[package]]
 name = "dill"
-version = "0.3.7.dev0"
-description = "serialize all of Python"
+version = "0.3.6"
+description = "serialize all of python"
 category = "main"
 optional = false
 python-versions = ">=3.7"
-files = []
-develop = false
+files = [
+    {file = "dill-0.3.6-py3-none-any.whl", hash = "sha256:a07ffd2351b8c678dfc4a856a3005f8067aea51d6ba6c700796a4d9e280f39f0"},
+    {file = "dill-0.3.6.tar.gz", hash = "sha256:e5db55f3687856d8fbdab002ed78544e1c4559a130302693d839dfe8f93f2373"},
+]
 
 [package.extras]
 graph = ["objgraph (>=1.7.2)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/uqfoundation/dill.git"
-reference = "HEAD"
-resolved_reference = "4e420e3e754706875e664dfc5566dae6727cc3bd"
 
 [[package]]
 name = "distlib"
@@ -1467,4 +1463,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "abbd29c4db38b5c5e5ec2db3f26a8cd570ca5132c650861a46acba56b9964363"
+content-hash = "c4fb52d9e30712c0c7dca96ff49f1cc44244715ccde334f144893b92b0f2d5ba"
