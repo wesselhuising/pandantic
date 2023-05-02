@@ -86,5 +86,4 @@ df_raised_error = DataFrameSchema.parse_df(
 )
 ```
 ## Docs
-
-Need to work on this, I know. I do wrote an [Medium blogpost](https://duckduckgo.com) about the usage and possibilites of the `pandantic` package (including some benchmarks).
+Documentation can be found [here](https://pandantic-rtd.readthedocs.io/en/latest/)
