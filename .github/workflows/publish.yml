@@ -30,4 +30,5 @@ jobs:
     - name: Publish to TestPyPi
       run: |
         poetry version ${{ github.ref_name }}
-        poetry publish --build --pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+        poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+        poetry publish --build
