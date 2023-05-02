@@ -10,7 +10,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 pandas = "^2.0.0"
 pydantic = "2.0a2"
 multiprocess = "^0.70.14"
