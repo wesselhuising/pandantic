@@ -12,7 +12,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.9"
 pandas = "^2.0.0"
-pydantic = "2.0a2"
+pydantic = "^2.0.0"
 multiprocess = "^0.70.14"
 
 [tool.poetry.group.dev.dependencies]
