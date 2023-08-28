@@ -38,6 +38,8 @@ class PandanticBaseModel(BaseModel):
         errors_index = []
         logging.debug("Amount of available cores: %s", os.cpu_count())
 
+        dataframe["_index"] = dataframe.index
+
         if n_jobs != 1:
             if n_jobs < 0:
                 n_jobs = os.cpu_count()  # type: ignore
@@ -48,7 +50,6 @@ class PandanticBaseModel(BaseModel):
 
             q = Queue()
 
-            dataframe["_index"] = dataframe.index
             for i in range(num_chunks):
                 chunks.append(dataframe.iloc[i * chunk_size : (i + 1) * chunk_size])
 
@@ -71,7 +72,7 @@ class PandanticBaseModel(BaseModel):
                 if num_stops == num_chunks:
                     break
         else:
-            for index, row in enumerate(dataframe.to_dict("records")):
+            for row in dataframe.to_dict("records"):
                 try:
                     cls.model_validate(
                         obj=row,
@@ -80,10 +81,12 @@ class PandanticBaseModel(BaseModel):
                 except Exception as exc:  # pylint: disable=broad-exception-caught
                     if verbose:
                         logging.info(
-                            "Validation error found at index %s\n%s", index, exc
+                            "Validation error found at index %s\n%s", row["_index"], exc
                         )
 
-                    errors_index.append(index)
+                    errors_index.append(row["_index"])
+
+        logging.debug("# invalid rows: %s", len(errors_index))
 
         if len(errors_index) > 0 and errors == "raise":
             raise ValueError(
