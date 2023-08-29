@@ -76,6 +76,7 @@ class PandanticBaseModel(BaseModel):
                     break
         else:
             for row in dataframe_copy.to_dict("records"):
+
                 try:
                     cls.model_validate(
                         obj=row,
