@@ -38,20 +38,23 @@ class PandanticBaseModel(BaseModel):
         errors_index = []
         logging.debug("Amount of available cores: %s", os.cpu_count())
 
-        dataframe["_index"] = dataframe.index
+        dataframe_copy = dataframe.copy()
+        dataframe_copy["_index"] = dataframe.index
 
         if n_jobs != 1:
             if n_jobs < 0:
                 n_jobs = os.cpu_count()  # type: ignore
 
             chunks = []
-            chunk_size = math.floor(len(dataframe) / n_jobs)
-            num_chunks = len(dataframe) // chunk_size + 1
+            chunk_size = math.floor(len(dataframe_copy) / n_jobs)
+            num_chunks = len(dataframe_copy) // chunk_size + 1
 
             q = Queue()
 
             for i in range(num_chunks):
-                chunks.append(dataframe.iloc[i * chunk_size : (i + 1) * chunk_size])
+                chunks.append(
+                    dataframe_copy.iloc[i * chunk_size : (i + 1) * chunk_size]
+                )
 
             for i in range(num_chunks):
                 p = Process(  # pylint: disable=not-callable
@@ -72,7 +75,7 @@ class PandanticBaseModel(BaseModel):
                 if num_stops == num_chunks:
                     break
         else:
-            for row in dataframe.to_dict("records"):
+            for row in dataframe_copy.to_dict("records"):
                 try:
                     cls.model_validate(
                         obj=row,
@@ -93,9 +96,11 @@ class PandanticBaseModel(BaseModel):
                 f"{len(errors_index)} validation errors found in dataframe."
             )
         if len(errors_index) > 0 and errors == "filter":
-            return dataframe[~dataframe.index.isin(list(errors_index))]
+            return dataframe_copy[~dataframe_copy.index.isin(list(errors_index))].drop(
+                columns=["_index"]
+            )
 
-        return dataframe.drop(columns=["_index"])
+        return dataframe_copy.drop(columns=["_index"])
 
     @classmethod
     def _validate_row(
