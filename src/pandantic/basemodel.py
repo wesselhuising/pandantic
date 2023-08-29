@@ -95,7 +95,7 @@ class PandanticBaseModel(BaseModel):
         if len(errors_index) > 0 and errors == "filter":
             return dataframe[~dataframe.index.isin(list(errors_index))]
 
-        return dataframe
+        return dataframe.drop(columns=["_index"])
 
     @classmethod
     def _validate_row(
