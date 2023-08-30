@@ -7,7 +7,10 @@ import os
 from typing import Any
 
 import pandas as pd
-from multiprocess import Process, Queue  # pylint: disable=no-name-in-module
+from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
+    Process,
+    Queue,
+)
 from pydantic import BaseModel
 
 
@@ -80,18 +83,14 @@ class PandanticBaseModel(BaseModel):
                     )
                 except Exception as exc:  # pylint: disable=broad-exception-caught
                     if verbose:
-                        logging.info(
-                            "Validation error found at index %s\n%s", row["_index"], exc
-                        )
+                        logging.info("Validation error found at index %s\n%s", row["_index"], exc)
 
                     errors_index.append(row["_index"])
 
         logging.debug("# invalid rows: %s", len(errors_index))
 
         if len(errors_index) > 0 and errors == "raise":
-            raise ValueError(
-                f"{len(errors_index)} validation errors found in dataframe."
-            )
+            raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
         if len(errors_index) > 0 and errors == "filter":
             return dataframe[~dataframe.index.isin(list(errors_index))]
 
@@ -123,9 +122,7 @@ class PandanticBaseModel(BaseModel):
                 )
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 if verbose:
-                    logging.info(
-                        "Validation error found at index %s\n%s", row["_index"], exc
-                    )
+                    logging.info("Validation error found at index %s\n%s", row["_index"], exc)
 
                 q.put(row["_index"])
 

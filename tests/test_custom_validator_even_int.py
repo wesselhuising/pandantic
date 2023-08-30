@@ -7,6 +7,7 @@ from pydantic import ValidationError, field_validator
 
 from pandantic import BaseModel
 
+
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -17,9 +18,7 @@ class DataFrameSchema(BaseModel):
     example_int: int
 
     @field_validator("example_int")
-    def validate_even_integer(  # pylint: disable=invalid-name, no-self-argument
-        cls, x: int
-    ) -> int:
+    def validate_even_integer(cls, x: int) -> int:  # pylint: disable=invalid-name, no-self-argument
         """Example custom validator to validate if int is even."""
         if x % 2 != 0:
             raise ValidationError(f"example_int must be even, is {x}.")

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pandantic"
-version = "0.0.0"
+version = "0.1.2"
 description = ""
 authors = ["wessel.huising <wessel.huising@mollie.com>"]
 readme = "README.md"
@@ -10,10 +10,10 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 pandas = "^2.0.0"
-pydantic = "^2.0.0"
-multiprocess = "^0.70.14"
+pydantic = "2.0a2"
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.0"
@@ -26,7 +26,11 @@ pre-commit-hooks = "^4.4.0"
 safety = "^2.3.5"
 scikit-learn = "^1.2.2"
 pandera = "^0.14.5"
-pandas-stubs = "^2.0.0.230412"
+
+[tool.isort]
+profile = "black"
+lines_after_imports = 2
+group_by_package = true
 
 [tool.mypy]
 strict = true
@@ -35,7 +39,23 @@ pretty = true
 show_column_numbers = true
 show_error_codes = true
 show_error_context = true
-ignore_missing_imports = true
+
+[tool.black]
+line-length = 100
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
 [build-system]
 requires = ["poetry-core"]
