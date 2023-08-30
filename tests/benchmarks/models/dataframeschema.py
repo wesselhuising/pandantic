@@ -4,6 +4,7 @@ from pydantic import StrictFloat, ValidationError, confloat, field_validator
 
 from pandantic import BaseModel
 
+
 LIST_PLAY_TYPE = [
     "Kickoff",
     "Pass",
@@ -36,9 +37,7 @@ class DataFrameSchema(BaseModel):
     PlayType: str
 
     @field_validator("PlayType")
-    def validate_playtype(  # pylint: disable=invalid-name, no-self-argument
-        cls, x: str
-    ) -> float:
+    def validate_playtype(cls, x: str) -> float:  # pylint: disable=invalid-name, no-self-argument
         """Example custom validator to validate if int is even."""
         if x not in LIST_PLAY_TYPE:
             raise ValidationError(f"playtype must be in {LIST_PLAY_TYPE}, is {x}.")

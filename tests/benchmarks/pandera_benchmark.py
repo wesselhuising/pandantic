@@ -3,7 +3,8 @@ from timeit import timeit
 
 import pandas as pd
 import pandera as pa
-from models import dataframeschema  # pylint: disable=import-error
+
+from tests.benchmarks.models import dataframeschema  # pylint: disable=import-error
 
 
 def pandera_validate(input_df):
@@ -18,9 +19,7 @@ def pandera_validate(input_df):
 
 if __name__ == "__main__":
     df = pd.read_csv(
-        filepath_or_buffer=Path(__file__).parent.parent.parent
-        / "artefacts"
-        / "nfl.csv",
+        filepath_or_buffer=Path(__file__).parent.parent.parent / "artefacts" / "nfl.csv",
     )[
         [
             "Date",
@@ -41,24 +40,28 @@ if __name__ == "__main__":
 
     schema = pa.DataFrameSchema(
         {
-            "Date": pa.Column(pa.DateTime),
-            "GameID": pa.Column(pa.Int),
-            "down": pa.Column(pa.Float, nullable=True),
-            "time": pa.Column(pa.String),
-            "yrdline100": pa.Column(pa.Float, pa.Check(lambda x: x <= 100)),
-            "SideofField": pa.Column(pa.String),
-            "DefensiveTeam": pa.Column(pa.String),
-            "PosTeamScore": pa.Column(pa.Float, pa.Check.greater_than_or_equal_to(0)),
-            "DefTeamScore": pa.Column(pa.Float, pa.Check.greater_than_or_equal_to(0)),
-            "PlayType": pa.Column(
-                pa.String, pa.Check.isin(dataframeschema.LIST_PLAY_TYPE)
+            "household_key": pa.Column(pa.Int),
+            "BASKET_ID": pa.Column(pa.Int),
+            "DAY": pa.Column(pa.Int),
+            "PRODUCT_ID": pa.Column(pa.Int),
+            "QUANTITY": pa.Column(pa.UInt, pa.Check(lambda x: x <= 5)),
+            "SALES_VALUE": pa.Column(pa.Float),
+            "STORE_ID": pa.Column(pa.Int),
+            "RETAIL_DISC": pa.Column(pa.Float, pa.Check.lower_than_or_equal_to(0)),
+            "TRANS_TIME": pa.Column(pa.Int),
+            "COUPON_DISC": pa.Column(
+                pa.String,
+                pa.Column(pa.Float, pa.Check.lower_than_or_equal_to(0)),
             ),
-        }
+            "COUPON_MATCH_DISC": pa.Column(
+                pa.String,
+                pa.Column(pa.Float, pa.Check.lower_than_or_equal_to(0)),
+            ),
+        },
+        strict=True,
     )
 
-    df_valid_pandantic = dataframeschema.DataFrameSchema.parse_df(
-        dataframe=df, errors="filter"
-    )
+    df_valid_pandantic = dataframeschema.DataFrameSchema.parse_df(dataframe=df, errors="filter")
     print("shape of df_valid_pandantic: %s", df_valid_pandantic.shape)
 
     df_valid_pandera = pandera_validate(df)
@@ -67,9 +70,9 @@ if __name__ == "__main__":
     assert (
         len(
             (
-                df_valid_pandantic.merge(
-                    df_valid_pandera, how="outer", indicator=True
-                ).loc[lambda x: x["_merge"] != "both"]
+                df_valid_pandantic.merge(df_valid_pandera, how="outer", indicator=True).loc[
+                    lambda x: x["_merge"] != "both"
+                ]
             )
         )
         == 0
@@ -79,9 +82,7 @@ if __name__ == "__main__":
     print(
         "pandantic is",
         timeit(
-            lambda: dataframeschema.DataFrameSchema.parse_df(
-                dataframe=df, errors="filter"
-            ),
+            lambda: dataframeschema.DataFrameSchema.parse_df(dataframe=df, errors="filter"),
             number=100,
         )
         / 100,
