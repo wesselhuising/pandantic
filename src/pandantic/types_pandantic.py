@@ -1,7 +1,7 @@
 import math
 from typing import Annotated, Any, Optional, TypeVar
 
-from pydantic import BeforeValidator
+from pydantic.functional_validators import BeforeValidator
 
 
 TypeT = TypeVar("TypeT")
