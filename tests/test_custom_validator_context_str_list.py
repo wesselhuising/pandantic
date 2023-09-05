@@ -7,6 +7,7 @@ from pydantic import ValidationError, field_validator
 
 from pandantic import BaseModel
 
+
 logging.basicConfig(level=logging.DEBUG)
 
 COUNTRY_LIST = ["USA", "UK", "CANADA"]
