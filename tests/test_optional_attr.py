@@ -47,13 +47,18 @@ class TestOptional:
         """Test that an optional int with a default value is set to None when not provided."""
         from pandantic import Optional  # pylint: disable=import-outside-toplevel
 
+        # GIVEN
         class Model(BaseModel):
             a: Optional[int] = None
+            b: int
 
-        df_example = pd.DataFrame({"a": [1, None, 2]})
+        df_example = pd.DataFrame({"a": [1, None, 2], "b": ["str", 2, 3]})
 
-        m = Model.parse_df(pd.DataFrame({"a": [1, None, 2]}), errors="filter", verbose=True)
-        assert m.equals(df_example)
+        # WHEN
+        df_filtered = Model.parse_df(df_example, errors="filter", verbose=True)
+
+        # THEN
+        assert df_filtered.equals(df_example.drop(index=[0]))
 
     def test_optional_int_parse_df_all_none(self):
         from pandantic import Optional  # pylint: disable=import-outside-toplevel
@@ -61,11 +66,12 @@ class TestOptional:
         # GIVEN
         class Model(BaseModel):
             a: Optional[int] = None
+            b: str
 
-        df_example = pd.DataFrame({"a": [None, None, None]})
+        df_example = pd.DataFrame({"a": [None, None, None], "b": ["str", "str", "str"]})
 
         # WHEN
-        m = Model.parse_df(pd.DataFrame({"a": [None, None, None]}), errors="filter", verbose=True)
+        df_filtered = Model.parse_df(df_example, errors="filter", verbose=True)
 
         # THEN
-        assert m.equals(df_example)
+        assert df_filtered.equals(df_example)
