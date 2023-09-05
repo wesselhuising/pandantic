@@ -55,5 +55,8 @@ def test_dataframe_invalid_filter_strict_int():
         errors="filter",
     )
 
+    print(df_valid_filtered)
+    print(example_df_invalid.drop(index=[0, 2]))
+
     # THEN
     assert df_valid_filtered.equals(example_df_invalid.drop(index=[0, 2]))

@@ -8,6 +8,7 @@ import pandas as pd
 
 from pandantic import BaseModel  # type: ignore
 
+
 logging.basicConfig(level=logging.INFO)
 
 logging.info("loading dataset.")

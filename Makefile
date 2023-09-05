@@ -1,4 +1,4 @@
 PHONY: black
 
 black:
-	black --config pyproject.toml src/
+	black --config pyproject.toml .

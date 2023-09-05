@@ -18,9 +18,7 @@ def pandera_validate(input_df):
 
 if __name__ == "__main__":
     df = pd.read_csv(
-        filepath_or_buffer=Path(__file__).parent.parent.parent
-        / "artefacts"
-        / "nfl.csv",
+        filepath_or_buffer=Path(__file__).parent.parent.parent / "artefacts" / "nfl.csv",
     )[
         [
             "Date",
@@ -50,9 +48,7 @@ if __name__ == "__main__":
             "DefensiveTeam": pa.Column(pa.String),
             "PosTeamScore": pa.Column(pa.Float, pa.Check.greater_than_or_equal_to(0)),
             "DefTeamScore": pa.Column(pa.Float, pa.Check.greater_than_or_equal_to(0)),
-            "PlayType": pa.Column(
-                pa.String, pa.Check.isin(dataframeschema.LIST_PLAY_TYPE)
-            ),
+            "PlayType": pa.Column(pa.String, pa.Check.isin(dataframeschema.LIST_PLAY_TYPE)),
         }
     )
 
@@ -71,9 +67,9 @@ if __name__ == "__main__":
     assert (
         len(
             (
-                df_valid_pandantic.merge(
-                    df_valid_pandera, how="outer", indicator=True
-                ).loc[lambda x: x["_merge"] != "both"]
+                df_valid_pandantic.merge(df_valid_pandera, how="outer", indicator=True).loc[
+                    lambda x: x["_merge"] != "both"
+                ]
             )
         )
         == 0
