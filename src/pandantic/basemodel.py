@@ -41,6 +41,7 @@ class PandanticBaseModel(BaseModel):
         errors_index = []
         logging.debug("Amount of available cores: %s", os.cpu_count())
 
+        dataframe = dataframe.copy()
         dataframe["_index"] = dataframe.index
 
         if n_jobs != 1:
@@ -83,6 +84,7 @@ class PandanticBaseModel(BaseModel):
                     )
                 except Exception as exc:  # pylint: disable=broad-exception-caught
                     if verbose:
+                        print(exc)
                         logging.info("Validation error found at index %s\n%s", row["_index"], exc)
 
                     errors_index.append(row["_index"])
@@ -92,9 +94,9 @@ class PandanticBaseModel(BaseModel):
         if len(errors_index) > 0 and errors == "raise":
             raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
         if len(errors_index) > 0 and errors == "filter":
-            return dataframe[~dataframe.index.isin(list(errors_index))]
+            return dataframe[~dataframe.index.isin(list(errors_index))].drop(columns=["_index"])
 
-        return dataframe
+        return dataframe.drop(columns=["_index"])
 
     @classmethod
     def _validate_row(

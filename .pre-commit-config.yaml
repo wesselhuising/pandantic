@@ -7,7 +7,7 @@ repos:
         language: system
         types: [python]
         require_serial: true
-        args: [--check, --diff , --config, pyproject.toml, src, tests]
+        args: [--config, pyproject.toml, src, tests]
       - id: check-added-large-files
         name: check for added large files
         entry: check-added-large-files
