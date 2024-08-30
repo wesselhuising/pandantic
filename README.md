@@ -62,9 +62,19 @@ Another way to use `pandantic` is via our [`pandas.DataFrame` extension](https:/
 from pandantic import BaseModel
 import pandantic.plugins.pandas
 
-df: pd.DataFrame = pd.DataFrame({"a": [1, 2, 3], "b": ["a", "b", "c"]})
-schema = PandanticBaseModel(a=int, b=str)
+df1: pd.DataFrame = pd.DataFrame({"a": [1, 2, 3], "b": ["a", "b", "c"]})
+class MyModel(BaseModel):
+    a: int
+    b: str
 
+df1.pydantic.validate(MyModel)  # returns True
+df1.pydantic.filter(MyModel)  # returns the same dataframe
+
+# but if we have a mixed DataFrame
+df2: pd.DataFrame = pd.DataFrame({"a": [1, 2, "3"], "b": ["a", 3, "c"]})
+
+df2.pydantic.validate(MyModel)  # returns False
+df2.pydantic.filter(MyModel)  # returns the filtered DataFrame with only the first row
 ```
 
 ## Custom validator example
