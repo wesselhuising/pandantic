@@ -53,19 +53,8 @@ repos:
         entry: isort
         require_serial: true
         language: system
-      - id: pylint
-        name: pylint
-        entry: pylint
+      - id: safety
+        name: check for vulnerable dependencies with Safety
+        entry: safety
         language: system
-        types: [python]
-        args:
-          [
-            "-rn", # Only display messages
-            "-sn", # Don't display the score
-            "src", # Only source code, skip tests folder
-          ]
-      # - id: safety
-      #   name: check for vulnerable dependencies with Safety
-      #   entry: safety
-      #   language: system
-      #   args: [./pyproject.toml]
+        args: [./pyproject.toml]
