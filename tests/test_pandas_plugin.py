@@ -1,9 +1,10 @@
 """Tests the pandas plugin."""
-from pandantic import BaseModel
-from pydantic import BaseModel as PydanticBaseModel
-from pydantic.types import StrictInt
 import pandas as pd
 import pytest
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic.types import StrictInt
+
+from pandantic import BaseModel
 
 
 class DataFrameSchema1(BaseModel):
@@ -55,7 +56,7 @@ def test_validate(dataframe: pd.DataFrame):
     assert not dataframe.pydantic.validate(schema=DataFrameSchema2)
 
     # catch non-pandantic schema
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         dataframe.pydantic.validate(schema=DataFrameSchema3)
 
 
@@ -64,5 +65,5 @@ def test_filter(dataframe: pd.DataFrame):
     assert dataframe.pydantic.filter(schema=DataFrameSchema2).shape[0] == 0
 
     # catch non-pandantic schema
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         dataframe.pydantic.filter(schema=DataFrameSchema3)

@@ -25,4 +25,4 @@ def coerce_nan_to_none(x: Any) -> Any:
     return x
 
 
-Optional = Annotated[Optional[TypeT], BeforeValidator(coerce_nan_to_none)]  # type: ignore
+Optional = Annotated[Optional[TypeT], BeforeValidator(coerce_nan_to_none)]
