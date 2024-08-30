@@ -54,7 +54,7 @@ def test_validate(dataframe: pd.DataFrame):
     assert dataframe.pydantic.validate(schema=DataFrameSchema1)
     assert not dataframe.pydantic.validate(schema=DataFrameSchema2)
 
-    # catch non-pandantic schema (only for deprecated method)
+    # catch non-pandantic schema
     with pytest.raises(AssertionError):
         dataframe.pydantic.validate(schema=DataFrameSchema3)
 
@@ -63,6 +63,6 @@ def test_filter(dataframe: pd.DataFrame):
     assert dataframe.pydantic.filter(schema=DataFrameSchema1).shape[0] == 3
     assert dataframe.pydantic.filter(schema=DataFrameSchema2).shape[0] == 0
 
-    # catch non-pandantic schema (only for deprecated method)
+    # catch non-pandantic schema
     with pytest.raises(AssertionError):
         dataframe.pydantic.filter(schema=DataFrameSchema3)
