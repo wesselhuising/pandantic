@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import math
 import os
-from typing import Any
+from typing import Any, Literal, Union
 
 import pandas as pd
 from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
@@ -14,6 +14,9 @@ from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
 from pydantic import BaseModel
 
 
+ErrorHandling = Union[Literal["raise"], Literal["filter"]]
+
+
 class PandanticBaseModel(BaseModel):
     """A subclass of the Pydantic BaseModel that adds a parse_df method to validate DataFrames."""
 
@@ -21,7 +24,7 @@ class PandanticBaseModel(BaseModel):
     def parse_df(
         cls,
         dataframe: pd.DataFrame,
-        errors: str = "raise",
+        errors: ErrorHandling = "raise",
         context: dict[str, Any] | None = None,
         n_jobs: int = 1,
         verbose: bool = True,
