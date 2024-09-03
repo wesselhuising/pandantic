@@ -1,11 +1,12 @@
 """Test custom validator context."""
+
 import logging
 
 import pandas as pd
 import pytest
-from pydantic import ValidationError, field_validator
+from pydantic import BaseModel, ValidationError, field_validator
 
-from pandantic import BaseModel
+from pandantic import Pandantic
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -40,8 +41,10 @@ def test_custom_validator_context_pass():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # WHEN
-    df_valid = DataFrameSchema.parse_df(
+    df_valid = validator.validate(
         dataframe=example_df_valid,
         errors="filter",
     )
@@ -61,8 +64,10 @@ def test_custom_validator_context_fail_filter():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # WHEN
-    df_invalid = DataFrameSchema.parse_df(
+    df_invalid = validator.validate(
         dataframe=example_df_invalid,
         errors="filter",
     )
@@ -82,10 +87,12 @@ def test_custom_validator_context_fail_raise():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # THEN
     with pytest.raises(ValueError):
         # WHEN
-        DataFrameSchema.parse_df(
+        validator.validate(
             dataframe=example_df_invalid,
             errors="raise",
         )
