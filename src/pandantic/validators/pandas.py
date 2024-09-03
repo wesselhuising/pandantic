@@ -21,7 +21,7 @@ class PandasValidator(BaseValidator):
         self,
         dataframe: pd.DataFrame,
         errors: str = "raise",
-        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax
+        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         n_jobs: int = 1,
         verbose: bool = True,
     ) -> pd.DataFrame:
@@ -105,7 +105,7 @@ class PandasValidator(BaseValidator):
         self,
         chunk: pd.DataFrame,
         q: Queue,
-        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax
+        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         verbose: bool = True,
     ) -> None:
         """Validate a single row of a DataFrame.
