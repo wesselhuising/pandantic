@@ -66,7 +66,7 @@ class PandasValidator(BaseValidator):
                     index = q.get()
                     if index is None:
                         num_stops += 1
-                        break  # pylint: disable=not-callable
+                        break
 
                     errors_index.append(index)
 
@@ -105,7 +105,7 @@ class PandasValidator(BaseValidator):
         self,
         chunk: pd.DataFrame,
         q: Queue,
-        context: dict[str, Any] | None = None,
+        context: Optional[dict[str, Any]] = None,
         verbose: bool = True,
     ) -> None:
         """Validate a single row of a DataFrame.
