@@ -1,7 +1,7 @@
 import logging
 import math
 import os
-from typing import Any, Optional
+from typing import Any, Union
 
 import pandas as pd
 from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
@@ -21,7 +21,7 @@ class PandasValidator(BaseValidator):
         self,
         dataframe: pd.DataFrame,
         errors: str = "raise",
-        context: Optional[dict[str, Any]] = None,
+        context: Union[dict[str, Any], None] = None,
         n_jobs: int = 1,
         verbose: bool = True,
     ) -> pd.DataFrame:
@@ -105,7 +105,7 @@ class PandasValidator(BaseValidator):
         self,
         chunk: pd.DataFrame,
         q: Queue,
-        context: Optional[dict[str, Any]] = None,
+        context: Union[dict[str, Any], None] = None,
         verbose: bool = True,
     ) -> None:
         """Validate a single row of a DataFrame.
