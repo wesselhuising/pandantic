@@ -1,7 +1,7 @@
 import logging
 import math
 import os
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
@@ -21,7 +21,7 @@ class PandasValidator(BaseValidator):
         self,
         dataframe: pd.DataFrame,
         errors: str = "raise",
-        context: dict[str, Any] | None = None,
+        context: Optional[dict[str, Any]] = None,
         n_jobs: int = 1,
         verbose: bool = True,
     ) -> pd.DataFrame:
@@ -57,9 +57,7 @@ class PandasValidator(BaseValidator):
                 chunks.append(dataframe.iloc[i * chunk_size : (i + 1) * chunk_size])
 
             for i in range(num_chunks):
-                p = Process(  # pylint: disable=not-callable
-                    target=self._validate_row, args=(chunks[i], q), daemon=True
-                )
+                p = Process(target=self._validate_row, args=(chunks[i], q), daemon=True)
                 p.start()
 
             num_stops = 0
@@ -84,25 +82,30 @@ class PandasValidator(BaseValidator):
                 except Exception as exc:  # pylint: disable=broad-exception-caught
                     if verbose:
                         print(exc)
-                        logging.info("Validation error found at index %s\n%s", row["_index"], exc)
+                        logging.info(
+                            "Validation error found at index %s\n%s", row["_index"], exc
+                        )
 
                     errors_index.append(row["_index"])
 
         logging.debug("# invalid rows: %s", len(errors_index))
 
         if len(errors_index) > 0 and errors == "raise":
-            raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
+            raise ValueError(
+                f"{len(errors_index)} validation errors found in dataframe."
+            )
         if len(errors_index) > 0 and errors == "filter":
-            return dataframe[~dataframe.index.isin(list(errors_index))].drop(columns=["_index"])
+            return dataframe[~dataframe.index.isin(list(errors_index))].drop(
+                columns=["_index"]
+            )
 
         return dataframe.drop(columns=["_index"])
 
-    @classmethod
     def _validate_row(
         self,
         chunk: pd.DataFrame,
         q: Queue,
-        context: dict[str, Any] | None = None,
+        context: Optional[dict[str, Any]] = None,
         verbose: bool = True,
     ) -> None:
         """Validate a single row of a DataFrame.
@@ -123,7 +126,9 @@ class PandasValidator(BaseValidator):
                 )
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 if verbose:
-                    logging.info("Validation error found at index %s\n%s", row["_index"], exc)
+                    logging.info(
+                        "Validation error found at index %s\n%s", row["_index"], exc
+                    )
 
                 q.put(row["_index"])
 
