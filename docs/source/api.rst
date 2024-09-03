@@ -4,14 +4,9 @@ API
 .. autosummary::
    :toctree: generated
 
-   pandantic.BaseModel.parse_df
+   pandantic.Pandantic.validate
 
 .. autosummary::
     :toctree: generated
 
-    pandantic.BaseModel
-
-.. autosummary::
-   :toctree: generated
-
-   pandantic.basemodel.PandanticBaseModel
+    pandantic.Pandantic
