@@ -21,9 +21,7 @@ class CoreValidator:
         if issubclass(pd.DataFrame, type(dataframe)):
             return PandasValidator(schema=self.schema)
 
-        raise TypeError(
-            f"Could not find any implementation for dataframe type: {type(dataframe)}"
-        )
+        raise TypeError(f"Could not find any implementation for dataframe type: {type(dataframe)}")
 
     def validate(self, dataframe: DataFrameTypes, **args) -> Any:  # type: ignore
         return self._get_implementation(dataframe).validate(dataframe=dataframe, **args)
