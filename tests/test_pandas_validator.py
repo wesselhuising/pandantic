@@ -1,19 +1,123 @@
+"""Tests the core functionality of PandasValidator using a more complex
+pydantic model w/ a custom int and str column validator:
+    * validate() function (full table).
+    * validate() function (to filter table).
+    * iterate() function.
+"""
 import pytest
+import logging
 import pandas as pd
 from typing import Optional
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, field_validator
 
 from pandantic.validators.pandas import PandasValidator
 
-def test_validate_chunk():
-    ...
+logging.basicConfig(level=logging.DEBUG)
 
-def test_validate_single_job():
-    ...
+COUNTRY_LIST = ["USA", "UK", "CANADA"]
 
-def test_validate_multiprocessing():
-    ...
+class DataFrameSchema(BaseModel):
+    """Example schema for testing."""
 
+    example_str: str
+    example_int: int
+
+    @field_validator("example_int")
+    def validate_even_integer(cls, x: int) -> int:  # pylint: disable=invalid-name, no-self-argument
+        """Example custom validator to validate if int is even."""
+        if x % 2 != 0:
+            raise ValidationError(f"example_int must be even, is {x}.")
+        return x
+
+
+    @field_validator("example_str")
+    def validate_country_in_list(  # pylint: disable=invalid-name, no-self-argument
+        cls, x: str
+    ) -> str:
+        """Example custom validator to validate if int is even."""
+        if x not in COUNTRY_LIST:
+            raise ValidationError(f"example_str must be part of country list, is {x}.")
+        return x
+
+
+def test_custom_validator_pass():
+    """Test that a custom validator passes."""
+
+    # GIVEN
+    valid_df = pd.DataFrame(
+        data={
+            "example_str": ["USA", "UK", "CANADA"],
+            "example_int": [2, 4, 12],
+        }
+    )
+
+    validator = PandasValidator(schema=DataFrameSchema)
+
+    # WHEN -> THEN
+    result = validator.validate(valid_df, errors="filter")
+    assert result.equals(valid_df)
+
+    result = validator.validate(valid_df, errors="filter", n_jobs=2)
+    assert result.equals(valid_df)
+
+
+def test_custom_str_validator_fail():
+    """Test that a custom validator fails."""
+
+    # GIVEN
+    int_invalid_df = pd.DataFrame(
+        data={
+            "example_str": ["USA", "UK", "CANADA"],
+            "example_int": [1, 4, 12],
+        }
+    )
+
+    validator = PandasValidator(schema=DataFrameSchema)
+
+    # WHEN -> THEN
+    result = validator.validate(int_invalid_df, errors="filter")
+    assert result.equals(int_invalid_df.drop(index=[0]))
+
+    result = validator.validate(int_invalid_df, errors="filter", n_jobs=2)
+    assert result.equals(int_invalid_df.drop(index=[0]))
+
+def test_custom_int_validator_fail():
+    # GIVEN
+    str_invalid_df = pd.DataFrame(
+        data={
+            "example_str": ["foo", "bar", "baz"],
+            "example_int": [2, 4, 12],
+        },
+    )
+
+    # WHEN -> THEN
+    result = validator.validate(str_invalid_df, errors="filter")
+    assert result.equals(str_invalid_df.drop(index=[0]))
+
+    result = validator.validate(str_invalid_df, errors="filter", n_jobs=2)
+    assert result.equals(str_invalid_df.drop(index=[0]))
+
+
+def test_custom_validator_fail_raise():
+    """Test that a custom validator fails."""
+
+    # GIVEN
+    example_df_invalid = pd.DataFrame(
+        data={
+            "example_str": ["foo", "bar", "baz"],
+            "example_int": [1, 4, 12],
+        }
+    )
+
+    validator = PandasValidator(schema=DataFrameSchema)
+
+    # THEN
+    with pytest.raises(ValueError):
+        # WHEN
+        validator.validate(
+            dataframe=example_df_invalid,
+            errors="raise",
+        )
 
 def test_optional_int_parse_df_with_default():
     """Test that an optional int with a default value is set to None when not provided."""
@@ -47,8 +151,6 @@ def test_optional_int_parse_df_all_none():
     # THEN
     assert df_filtered.equals(df_example)
 
-def tests_filter_multiprocessing():
-    ...
 
 def test_iterate():
     ...
