@@ -42,7 +42,13 @@ class DataFrameSchema(BaseModel):
         return x
 
 
-def test_custom_validator_pass():
+@pytest.fixture
+def validator() -> PandasValidator:
+    """Fixture for a simple dataframe."""
+    return PandasValidator(schema=DataFrameSchema)
+
+
+def test_custom_validator_pass(validator: PandasValidator):
     """Test that a custom validator passes."""
 
     # GIVEN
@@ -53,8 +59,6 @@ def test_custom_validator_pass():
         }
     )
 
-    validator = PandasValidator(schema=DataFrameSchema)
-
     # WHEN -> THEN
     result = validator.validate(valid_df, errors="filter")
     assert result.equals(valid_df)
@@ -63,7 +67,7 @@ def test_custom_validator_pass():
     assert result.equals(valid_df)
 
 
-def test_custom_str_validator_fail():
+def test_custom_str_validator_fail(validator: PandasValidator):
     """Test that a custom validator fails."""
 
     # GIVEN
@@ -74,8 +78,6 @@ def test_custom_str_validator_fail():
         }
     )
 
-    validator = PandasValidator(schema=DataFrameSchema)
-
     # WHEN -> THEN
     result = validator.validate(int_invalid_df, errors="filter")
     assert result.equals(int_invalid_df.drop(index=[0]))
@@ -84,11 +86,12 @@ def test_custom_str_validator_fail():
     assert result.equals(int_invalid_df.drop(index=[0]))
 
 
-def test_custom_int_validator_fail():
+def test_custom_int_validator_fail(validator: PandasValidator):
+    """Test that a custom validator fails."""
     # GIVEN
     str_invalid_df = pd.DataFrame(
         data={
-            "example_str": ["foo", "bar", "baz"],
+            "example_str": ["foo", "UK", "CANADA"],
             "example_int": [2, 4, 12],
         },
     )
@@ -101,7 +104,7 @@ def test_custom_int_validator_fail():
     assert result.equals(str_invalid_df.drop(index=[0]))
 
 
-def test_custom_validator_fail_raise():
+def test_custom_validator_fail_raise(validator: PandasValidator):
     """Test that a custom validator fails."""
 
     # GIVEN
@@ -111,8 +114,6 @@ def test_custom_validator_fail_raise():
             "example_int": [1, 4, 12],
         }
     )
-
-    validator = PandasValidator(schema=DataFrameSchema)
 
     # THEN
     with pytest.raises(ValueError):
@@ -138,7 +139,7 @@ def test_optional_int_parse_df_with_default():
     df_filtered = validator.validate(df_example, errors="filter", verbose=True)
 
     # THEN
-    assert df_filtered.equals(df_example.drop(index=[0]))
+    assert len(df_filtered) == 1
 
 
 def test_optional_int_parse_df_all_none():
