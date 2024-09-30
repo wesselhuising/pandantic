@@ -1,7 +1,7 @@
 import logging
 import math
 import os
-from typing import Any, Optional
+from typing import Any, Hashable, Iterable, Optional, Union
 
 import pandas as pd
 from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
@@ -130,3 +130,23 @@ class PandasValidator(BaseValidator):
 
         logging.debug("Process ended.")
         q.put(None)
+
+    def iterate(
+        self,
+        dataframe: pd.DataFrame,
+        context: Optional[
+            dict[str, Any]
+        ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
+        verbose: bool = True,
+    ) -> Iterable[tuple[Hashable, SchemaTypes]]:
+        """Iterate over a DataFrame and yield validated schema models."""
+        for i, row in dataframe.iterrows():
+            try:
+                yield i, self.schema.model_validate(
+                    obj=row.to_dict(),
+                    context=context,
+                )
+            except Exception as e:
+                if verbose:
+                    logging.info(f"Validation error found at index {i}, skipping: {e}.")
+                continue
