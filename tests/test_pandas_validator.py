@@ -4,17 +4,20 @@ pydantic model w/ a custom int and str column validator:
     * validate() function (to filter table).
     * iterate() function.
 """
-import pytest
 import logging
-import pandas as pd
 from typing import Optional
+
+import pandas as pd
+import pytest
 from pydantic import BaseModel, ValidationError, field_validator
 
 from pandantic.validators.pandas import PandasValidator
 
+
 logging.basicConfig(level=logging.DEBUG)
 
 COUNTRY_LIST = ["USA", "UK", "CANADA"]
+
 
 class DataFrameSchema(BaseModel):
     """Example schema for testing."""
@@ -28,7 +31,6 @@ class DataFrameSchema(BaseModel):
         if x % 2 != 0:
             raise ValidationError(f"example_int must be even, is {x}.")
         return x
-
 
     @field_validator("example_str")
     def validate_country_in_list(  # pylint: disable=invalid-name, no-self-argument
@@ -81,6 +83,7 @@ def test_custom_str_validator_fail():
     result = validator.validate(int_invalid_df, errors="filter", n_jobs=2)
     assert result.equals(int_invalid_df.drop(index=[0]))
 
+
 def test_custom_int_validator_fail():
     # GIVEN
     str_invalid_df = pd.DataFrame(
@@ -119,8 +122,10 @@ def test_custom_validator_fail_raise():
             errors="raise",
         )
 
+
 def test_optional_int_parse_df_with_default():
     """Test that an optional int with a default value is set to None when not provided."""
+
     # GIVEN
     class Model(BaseModel):
         a: Optional[int] = None
