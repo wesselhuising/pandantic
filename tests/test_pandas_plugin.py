@@ -59,3 +59,40 @@ def test_filter(dataframe: pd.DataFrame):
 
     assert dataframe.pydantic.filter(schema=DataFrameSchema1).shape[0] == 3
     assert dataframe.pydantic.filter(schema=DataFrameSchema2).shape[0] == 0
+
+
+def test_itertuples(dataframe: pd.DataFrame):
+    import pandantic.plugins.pandas
+
+    out_list = []
+    for i in dataframe.pydantic.itertuples(DataFrameSchema1):
+        out_list.append(i)
+
+    assert len(out_list) == 3
+    assert isinstance(out_list[0], tuple)
+
+
+def test_iterrows(dataframe: pd.DataFrame):
+    import pandantic.plugins.pandas
+
+    out_list = []
+    for i in dataframe.pydantic.iterrows(DataFrameSchema1):
+        out_list.append(i)
+
+    assert len(out_list) == 3
+    assert isinstance(out_list[0], tuple)
+    assert len(out_list[0]) == 2
+    assert isinstance(out_list[0][1], pd.Series)
+
+
+def test_iterschemas(dataframe: pd.DataFrame):
+    import pandantic.plugins.pandas
+
+    out_list = []
+    for i in dataframe.pydantic.iterschemas(DataFrameSchema1):
+        out_list.append(i)
+
+    assert len(out_list) == 3
+    assert isinstance(out_list[0], tuple)
+    assert len(out_list[0]) == 2
+    assert issubclass(type(out_list[0][1]), DataFrameSchema1)
