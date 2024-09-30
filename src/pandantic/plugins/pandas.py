@@ -35,10 +35,10 @@ class PydanticAccessor:
         verbose: bool = True,
         **kwargs: Optional[Dict[str, Any]],
     ) -> bool:
-        assert issubclass(
-            type(schema), BaseModel
-        ), f"Arg `schema` must be a pydantic.BaseModel subclass!"
-        schema_validator = CoreValidator(schema)
+        if not isinstance(schema, type(BaseModel)):
+            raise TypeError("Arg `schema` must be a pydantic.BaseModel subclass!")
+
+        schema_validator = CoreValidator(schema)  # type: ignore
         try:
             _ = schema_validator.validate(
                 dataframe=self.obj,
@@ -60,10 +60,10 @@ class PydanticAccessor:
         verbose: bool = True,
         **kwargs: Optional[Dict[str, Any]],
     ) -> pd.DataFrame:
-        assert issubclass(
-            type(schema), BaseModel
-        ), f"Arg `schema` must be a pydantic.BaseModel subclass!"
-        schema_validator = CoreValidator(schema)
+        if not isinstance(schema, type(BaseModel)):
+            raise TypeError("Arg `schema` must be a pydantic.BaseModel subclass!")
+
+        schema_validator = CoreValidator(schema)  # type: ignore
         filtered_df: pd.DataFrame = schema_validator.validate(
             dataframe=self.obj,
             errors="filter",
