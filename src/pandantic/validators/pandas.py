@@ -21,7 +21,9 @@ class PandasValidator(BaseValidator):
         self,
         dataframe: pd.DataFrame,
         errors: str = "raise",
-        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
+        context: Optional[
+            dict[str, Any]
+        ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         n_jobs: int = 1,
         verbose: bool = True,
     ) -> pd.DataFrame:
@@ -82,22 +84,16 @@ class PandasValidator(BaseValidator):
                 except Exception as exc:  # pylint: disable=broad-exception-caught
                     if verbose:
                         print(exc)
-                        logging.info(
-                            "Validation error found at index %s\n%s", row["_index"], exc
-                        )
+                        logging.info("Validation error found at index %s\n%s", row["_index"], exc)
 
                     errors_index.append(row["_index"])
 
         logging.debug("# invalid rows: %s", len(errors_index))
 
         if len(errors_index) > 0 and errors == "raise":
-            raise ValueError(
-                f"{len(errors_index)} validation errors found in dataframe."
-            )
+            raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
         if len(errors_index) > 0 and errors == "filter":
-            return dataframe[~dataframe.index.isin(list(errors_index))].drop(
-                columns=["_index"]
-            )
+            return dataframe[~dataframe.index.isin(list(errors_index))].drop(columns=["_index"])
 
         return dataframe.drop(columns=["_index"])
 
@@ -105,7 +101,9 @@ class PandasValidator(BaseValidator):
         self,
         chunk: pd.DataFrame,
         q: Queue,
-        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
+        context: Optional[
+            dict[str, Any]
+        ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         verbose: bool = True,
     ) -> None:
         """Validate a single row of a DataFrame.
@@ -126,9 +124,7 @@ class PandasValidator(BaseValidator):
                 )
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 if verbose:
-                    logging.info(
-                        "Validation error found at index %s\n%s", row["_index"], exc
-                    )
+                    logging.info("Validation error found at index %s\n%s", row["_index"], exc)
 
                 q.put(row["_index"])
 
