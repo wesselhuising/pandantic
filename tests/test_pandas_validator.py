@@ -156,7 +156,3 @@ def test_optional_int_parse_df_all_none():
 
     # THEN
     assert df_filtered.equals(df_example)
-
-
-def test_iterate():
-    ...
