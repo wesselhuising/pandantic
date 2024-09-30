@@ -59,7 +59,7 @@ class PandasValidator(BaseValidator):
                 chunks.append(dataframe.iloc[i * chunk_size : (i + 1) * chunk_size])
 
             for i in range(num_chunks):
-                p = Process(target=self._validate_row, args=(chunks[i], q), daemon=True)
+                p = Process(target=self._validate_chunk, args=(chunks[i], q), daemon=True)
                 p.start()
 
             num_stops = 0
@@ -97,7 +97,7 @@ class PandasValidator(BaseValidator):
 
         return dataframe.drop(columns=["_index"])
 
-    def _validate_row(
+    def _validate_chunk(
         self,
         chunk: pd.DataFrame,
         q: Queue,
@@ -106,7 +106,7 @@ class PandasValidator(BaseValidator):
         ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         verbose: bool = True,
     ) -> None:
-        """Validate a single row of a DataFrame.
+        """Validate a chunk of a DataFrame.
 
         Args:
             chunk (pd.DataFrame): The DataFrame chunk to validate.
