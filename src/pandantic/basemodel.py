@@ -12,7 +12,7 @@ from pandantic.validators.pandas import PandasValidator
 
 
 class CoreValidator:
-    """A subclass of the Pydantic BaseModel that adds a parse_df method to validate DataFrames."""
+    """An implementation of the Pydantic BaseValidator."""
 
     def __init__(self, schema: SchemaTypes):
         self.schema = schema
