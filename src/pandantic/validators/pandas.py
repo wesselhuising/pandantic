@@ -24,7 +24,7 @@ class PandasValidator(BaseValidator):
         errors: str = "raise",
         context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         n_jobs: int = 1,
-        queue: Optional[Any] = None,
+        queue: Optional[Queue] = None,
         verbose: bool = True,
     ) -> pd.DataFrame:
         """Validate a DataFrame using the schema defined in the Pydantic model.
@@ -62,7 +62,9 @@ class PandasValidator(BaseValidator):
                 chunks.append(dataframe.iloc[i * chunk_size : (i + 1) * chunk_size])
 
             for i in range(num_chunks):
-                p = Process(target=self._validate_row, args=(chunks[i], q), daemon=True)
+                p = Process(
+                    target=self._validate_chunk, args=(chunks[i], q), daemon=True
+                )
                 p.start()
 
             num_stops = 0
@@ -106,7 +108,7 @@ class PandasValidator(BaseValidator):
 
         return dataframe.drop(columns=["_index"])
 
-    def _validate_row(
+    def _validate_chunk(
         self,
         chunk: pd.DataFrame,
         q: Queue,
@@ -129,7 +131,7 @@ class PandasValidator(BaseValidator):
                     obj=row,
                     context=context,
                 )
-            except Exception as exc:  # pylint: disable=broad-exception-caught
+            except PydanticValidationError as exc:  # pylint: disable=broad-exception-caught
                 if verbose:
                     logging.info(
                         "Validation error found at index %s\n%s", row["_index"], exc
