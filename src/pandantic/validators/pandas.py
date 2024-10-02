@@ -8,6 +8,7 @@ from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
     Process,
     Queue,
 )
+from pydantic.errors import PydanticValidationError
 
 from pandantic.types import SchemaTypes
 from pandantic.validators.base import BaseValidator
@@ -79,7 +80,7 @@ class PandasValidator(BaseValidator):
                         obj=row,
                         context=context,
                     )
-                except Exception as exc:  # pylint: disable=broad-exception-caught
+                except PydanticValidationError as exc:  # pylint: disable=broad-exception-caught
                     if verbose:
                         print(exc)
                         logging.info(
