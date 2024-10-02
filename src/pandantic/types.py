@@ -5,4 +5,4 @@ import pydantic
 
 
 SchemaTypes = Union[pydantic.BaseModel]
-DataFrameTypes = Union[pd.DataFrame]
+TableTypes = Union[pd.DataFrame]
