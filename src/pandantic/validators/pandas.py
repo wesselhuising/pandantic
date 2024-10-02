@@ -103,7 +103,7 @@ class PandasValidator(BaseValidator):
         if len(errors_index) > 0 and errors == "raise":
             raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
         if len(errors_index) > 0 and errors == "filter":
-            return dataframe[~dataframe.index.isin(list(errors_index))].drop(columns=["_index"])
+            return dataframe[~dataframe.index.isin(list(errors_index))]
 
         return dataframe
 

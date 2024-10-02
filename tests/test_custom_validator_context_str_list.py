@@ -4,7 +4,7 @@ import logging
 
 import pandas as pd
 import pytest
-from pydantic import BaseModel, ValidationError, field_validator
+from pydantic import BaseModel, field_validator
 
 from pandantic import Pandantic
 
@@ -23,10 +23,10 @@ class DataFrameSchema(BaseModel):
     @field_validator("example_str")
     def validate_country_in_list(  # pylint: disable=invalid-name, no-self-argument
         cls, x: str
-    ) -> int:
+    ) -> str:
         """Example custom validator to validate if int is even."""
         if x not in COUNTRY_LIST:
-            raise ValidationError(f"example_str must be part of country list, is {x}.")
+            raise ValueError(f"example_str must be part of country list, is {x}.")
         return x
 
 
