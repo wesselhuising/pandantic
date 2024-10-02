@@ -7,7 +7,7 @@ from typing import Any
 import pandas as pd
 
 from pandantic.types import SchemaTypes, TableTypes
-from pandantic.validators.baseclass import BaseValidator
+from pandantic.validators.base import BaseValidator
 from pandantic.validators.pandas import PandasValidator
 
 

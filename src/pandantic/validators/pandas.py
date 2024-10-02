@@ -10,7 +10,7 @@ from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
 )
 
 from pandantic.types import SchemaTypes
-from pandantic.validators.baseclass import BaseValidator
+from pandantic.validators.base import BaseValidator
 
 
 class PandasValidator(BaseValidator):
