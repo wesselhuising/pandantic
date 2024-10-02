@@ -24,6 +24,7 @@ class PandasValidator(BaseValidator):
         errors: str = "raise",
         context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         n_jobs: int = 1,
+        queue: Optional[Any] = None,
         verbose: bool = True,
     ) -> pd.DataFrame:
         """Validate a DataFrame using the schema defined in the Pydantic model.
@@ -52,7 +53,10 @@ class PandasValidator(BaseValidator):
             chunk_size = math.floor(len(dataframe) / n_jobs)
             num_chunks = len(dataframe) // chunk_size + 1
 
-            q = Queue()
+            if queue is None:
+                queue = Queue()
+
+            q = queue
 
             for i in range(num_chunks):
                 chunks.append(dataframe.iloc[i * chunk_size : (i + 1) * chunk_size])
