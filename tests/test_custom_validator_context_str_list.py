@@ -46,7 +46,7 @@ def test_custom_validator_context_pass():
     # WHEN
     df_valid = validator.validate(
         dataframe=example_df_valid,
-        errors="filter",
+        errors="skip",
     )
 
     # THEN
@@ -69,7 +69,7 @@ def test_custom_validator_context_fail_filter():
     # WHEN
     df_invalid = validator.validate(
         dataframe=example_df_invalid,
-        errors="filter",
+        errors="skip",
     )
 
     # THEN
