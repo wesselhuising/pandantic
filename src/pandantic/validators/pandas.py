@@ -2,7 +2,7 @@ import logging
 import math
 import os
 from collections.abc import Hashable
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 import pandas as pd
 from multiprocess import (  # type:ignore # pylint: disable=no-name-in-module
@@ -22,26 +22,26 @@ class PandasValidator(BaseValidator):
     def validate(
         self,
         dataframe: pd.DataFrame,
-        errors: str = "raise",
-        context: Optional[
-            dict[str, Any]
-        ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
+        errors: Literal["skip", "raise", "log"] = "raise",
+        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         n_jobs: int = 1,
         queue: Optional[Queue] = None,
-        verbose: bool = True,
     ) -> pd.DataFrame:
         """Validate a DataFrame using the schema defined in the Pydantic model.
 
         Args:
             dataframe (pd.DataFrame): The DataFrame to validate.
-            errors (str, optional): How to handle validation errors. Defaults to "raise".
-            context (Optional[dict[str, Any], None], optional): The context to use for validation.
+            errors (Literal["skip", "raise", "log"], optional): How to handle validation errors. Defaults to "raise".
+            context (Optional[dict[str, Any]], optional): The context to use for validation. Defaults to None.
             n_jobs (int, optional): The number of processes to use for validation. Defaults to 1.
-            verbose (bool, optional): Whether to log validation errors. Defaults to True.
+            queue (Optional[Queue], optional): A custom Queue object for multiprocessing. Defaults to None.
 
         Returns:
-            pd.DataFrame: The DataFrame with valid rows in case of errors="filter".
+            pd.DataFrame: The original DataFrame if errors="raise" or "log", or a filtered DataFrame with valid rows if errors="skip".
         """
+        if errors not in ["skip", "raise", "log"]:
+            raise ValueError("errors must be one of 'skip', 'raise', or 'log'")
+
         errors_index = []
         logging.debug("Amount of available cores: %s", os.cpu_count())
 
@@ -57,7 +57,9 @@ class PandasValidator(BaseValidator):
             if queue is None:
                 queue = Queue()
             elif "queue" not in str(type(queue)).lower():
-                logging.warning(f"Expecting queue object for arg:queue, not {type(queue)}!")
+                logging.warning(
+                    f"Expecting queue object for arg:queue, not {type(queue)}!"
+                )
             else:
                 assert hasattr(queue, "get"), "Queue object must have a put method."
                 assert hasattr(queue, "put"), "Queue object must have a put method."
@@ -65,11 +67,17 @@ class PandasValidator(BaseValidator):
             # send chunks to be processed
             for i in range(num_chunks):
                 chunks.append(
-                    dataframe.iloc[i * chunk_size : (i + 1) * chunk_size].to_dict("index")
+                    dataframe.iloc[i * chunk_size : (i + 1) * chunk_size].to_dict(
+                        "index"
+                    )
                 )
 
             for i in range(num_chunks):
-                p = Process(target=self._validate_chunk, args=(chunks[i], queue), daemon=True)
+                p = Process(
+                    target=self._validate_chunk,
+                    args=(chunks[i], errors, queue),
+                    daemon=True,
+                )
                 p.start()
 
             num_stops = 0
@@ -92,17 +100,20 @@ class PandasValidator(BaseValidator):
                         context=context,
                     )
                 except ValidationError as exc:  # pylint: disable=broad-exception-caught
-                    if verbose:
-                        print(exc)
-                        logging.info("Validation error found at index %s\n%s", index, exc)
+                    if errors == "log":
+                        logging.info(
+                            "Validation error found at index %s\n%s", index, exc
+                        )
 
                     errors_index.append(index)
 
         logging.debug("# invalid rows: %s", len(errors_index))
 
         if len(errors_index) > 0 and errors == "raise":
-            raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
-        if len(errors_index) > 0 and errors == "filter":
+            raise ValueError(
+                f"{len(errors_index)} validation errors found in dataframe."
+            )
+        if len(errors_index) > 0 and errors == "skip":
             return dataframe[~dataframe.index.isin(list(errors_index))]
 
         return dataframe
@@ -110,19 +121,17 @@ class PandasValidator(BaseValidator):
     def _validate_chunk(
         self,
         chunk: dict[Hashable, Any],
-        q: Queue,
-        context: Optional[
-            dict[str, Any]
-        ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
-        verbose: bool = True,
+        errors: Literal["skip", "raise", "log"] = "raise",
+        queue: Optional[Queue] = None,
+        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
     ) -> None:
-        """Validate a single row of a DataFrame.
+        """Validate a single chunk of a DataFrame.
 
         Args:
-            chunk (pd.DataFrame): The DataFrame chunk to validate.
-            q (Queue): The queue to put the index of the row in case of an error.
-            context (Optional[dict[str, Any], None], optional): The context to use for validation.
-            verbose (bool, optional): Whether to log validation errors. Defaults to True.
+            chunk (dict[Hashable, Any]): The DataFrame chunk to validate.
+            errors (Literal["skip", "raise", "log"], optional): How to handle validation errors. Defaults to "raise".
+            queue (Optional[Queue], optional): The queue to put the index of the row in case of an error.
+            context (Optional[dict[str, Any]], optional): The context to use for validation. Defaults to None.
         """
         logging.debug("Process started.")
 
@@ -133,10 +142,11 @@ class PandasValidator(BaseValidator):
                     context=context,
                 )
             except ValidationError as exc:  # pylint: disable=broad-exception-caught
-                if verbose:
+                if errors == "log":
                     logging.info("Validation error found at index %s\n%s", index, exc)
 
-                q.put(index)
+                queue.put(index)
 
         logging.debug("Process ended.")
-        q.put(None)
+
+        queue.put(None)
