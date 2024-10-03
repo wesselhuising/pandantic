@@ -1,11 +1,12 @@
 """Test custom validator for even integer."""
+
 import logging
 
 import pandas as pd
 import pytest
-from pydantic import ValidationError, field_validator
+from pydantic import BaseModel, field_validator
 
-from pandantic import BaseModel
+from pandantic import Pandantic
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -21,7 +22,7 @@ class DataFrameSchema(BaseModel):
     def validate_even_integer(cls, x: int) -> int:  # pylint: disable=invalid-name, no-self-argument
         """Example custom validator to validate if int is even."""
         if x % 2 != 0:
-            raise ValidationError(f"example_int must be even, is {x}.")
+            raise ValueError(f"example_int must be even, is {x}.")
         return x
 
 
@@ -36,8 +37,10 @@ def test_custom_validator_even_pass():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # WHEN
-    df_valid = DataFrameSchema.parse_df(
+    df_valid = validator.validate(
         dataframe=example_df_valid,
         errors="filter",
     )
@@ -57,8 +60,10 @@ def test_custom_validator_even_fail_filter():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # WHEN
-    df_invalid = DataFrameSchema.parse_df(
+    df_invalid = validator.validate(
         dataframe=example_df_invalid,
         errors="filter",
     )
@@ -78,10 +83,12 @@ def test_custom_validator_even_fail_raise():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # THEN
     with pytest.raises(ValueError):
         # WHEN
-        DataFrameSchema.parse_df(
+        validator.validate(
             dataframe=example_df_invalid,
             errors="raise",
         )

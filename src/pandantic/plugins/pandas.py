@@ -11,8 +11,9 @@ import logging
 from typing import Any, Dict, Optional
 
 import pandas as pd
+from pydantic import BaseModel
 
-from pandantic import BaseModel as PandanticBaseModel  # type: ignore
+from pandantic.basemodel import CoreValidator
 
 
 @pd.api.extensions.register_dataframe_accessor("pydantic")
@@ -29,15 +30,17 @@ class PydanticAccessor:
 
     def validate(
         self,
-        schema: PandanticBaseModel,
+        schema: BaseModel,
         n_jobs: Optional[int] = None,
         verbose: bool = True,
         **kwargs: Optional[Dict[str, Any]],
     ) -> bool:
-        if not issubclass(schema, PandanticBaseModel):  # type: ignore
-            raise ValueError(f"{schema=} is not a PandanticBaseModel!")
+        if not isinstance(schema, type(BaseModel)):
+            raise TypeError("Arg `schema` must be a pydantic.BaseModel subclass!")
+
+        schema_validator = CoreValidator(schema)  # type: ignore
         try:
-            _ = schema.parse_df(
+            _ = schema_validator.validate(
                 dataframe=self.obj,
                 errors="raise",
                 context=kwargs,
@@ -52,17 +55,21 @@ class PydanticAccessor:
 
     def filter(
         self,
-        schema: PandanticBaseModel,
+        schema: BaseModel,
         n_jobs: Optional[int] = None,
         verbose: bool = True,
         **kwargs: Optional[Dict[str, Any]],
     ) -> pd.DataFrame:
-        if not issubclass(schema, PandanticBaseModel):  # type: ignore
-            raise ValueError(f"{schema=} is not a PandanticBaseModel!")
-        return schema.parse_df(
+        if not isinstance(schema, type(BaseModel)):
+            raise TypeError("Arg `schema` must be a pydantic.BaseModel subclass!")
+
+        schema_validator = CoreValidator(schema)  # type: ignore
+        filtered_df: pd.DataFrame = schema_validator.validate(
             dataframe=self.obj,
             errors="filter",
             context=kwargs,
             n_jobs=n_jobs or 1,
             verbose=verbose,
         )
+        assert isinstance(filtered_df, pd.DataFrame)
+        return filtered_df

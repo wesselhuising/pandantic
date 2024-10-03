@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
-from pandantic import BaseModel
+from pandantic import Pandantic
 
 
 class TestOptional:
@@ -54,8 +54,10 @@ class TestOptional:
 
         df_example = pd.DataFrame({"a": [1, None, 2], "b": ["str", 2, 3]})
 
+        validator = Pandantic(schema=Model)
+
         # WHEN
-        df_filtered = Model.parse_df(df_example, errors="filter", verbose=True)
+        df_filtered = validator.validate(df_example, errors="filter", verbose=True)
 
         # THEN
         assert df_filtered.equals(df_example.drop(index=[0]))
@@ -70,8 +72,10 @@ class TestOptional:
 
         df_example = pd.DataFrame({"a": [None, None, None], "b": ["str", "str", "str"]})
 
+        validator = Pandantic(schema=Model)
+
         # WHEN
-        df_filtered = Model.parse_df(df_example, errors="filter", verbose=True)
+        df_filtered = validator.validate(df_example, errors="filter", verbose=True)
 
         # THEN
         assert df_filtered.equals(df_example)

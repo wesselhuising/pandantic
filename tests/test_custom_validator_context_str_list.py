@@ -1,11 +1,12 @@
 """Test custom validator context."""
+
 import logging
 
 import pandas as pd
 import pytest
-from pydantic import ValidationError, field_validator
+from pydantic import BaseModel, field_validator
 
-from pandantic import BaseModel
+from pandantic import Pandantic
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -22,10 +23,10 @@ class DataFrameSchema(BaseModel):
     @field_validator("example_str")
     def validate_country_in_list(  # pylint: disable=invalid-name, no-self-argument
         cls, x: str
-    ) -> int:
+    ) -> str:
         """Example custom validator to validate if int is even."""
         if x not in COUNTRY_LIST:
-            raise ValidationError(f"example_str must be part of country list, is {x}.")
+            raise ValueError(f"example_str must be part of country list, is {x}.")
         return x
 
 
@@ -40,8 +41,10 @@ def test_custom_validator_context_pass():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # WHEN
-    df_valid = DataFrameSchema.parse_df(
+    df_valid = validator.validate(
         dataframe=example_df_valid,
         errors="filter",
     )
@@ -61,8 +64,10 @@ def test_custom_validator_context_fail_filter():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # WHEN
-    df_invalid = DataFrameSchema.parse_df(
+    df_invalid = validator.validate(
         dataframe=example_df_invalid,
         errors="filter",
     )
@@ -82,10 +87,12 @@ def test_custom_validator_context_fail_raise():
         }
     )
 
+    validator = Pandantic(schema=DataFrameSchema)
+
     # THEN
     with pytest.raises(ValueError):
         # WHEN
-        DataFrameSchema.parse_df(
+        validator.validate(
             dataframe=example_df_invalid,
             errors="raise",
         )
