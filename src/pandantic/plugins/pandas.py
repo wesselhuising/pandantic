@@ -16,6 +16,9 @@ from pydantic import BaseModel, ValidationError
 from pandantic.validators.pandas import PandasValidator
 
 
+logger = logging.get_logger(__name__)
+
+
 @pd.api.extensions.register_dataframe_accessor("pydantic")
 class PydanticAccessor:
     def __init__(self, pandas_obj: pd.DataFrame):
@@ -48,9 +51,9 @@ class PydanticAccessor:
                 verbose=verbose,
             )
         except Exception as e:
-            logging.info(f"Invalid dataframe for {schema=}. Exception: {e}")
+            logger.info(f"Invalid dataframe for {schema=}. Exception: {e}")
             return False
-        logging.info(f"Valid dataframe for {schema=}!")
+        logger.info(f"Valid dataframe for {schema=}!")
         return True
 
     def filter(
@@ -85,7 +88,7 @@ class PydanticAccessor:
                 _ = schema(**dict(zip(self.obj.columns, row[1:])))  # type: ignore
             except ValidationError as e:
                 if verbose:
-                    logging.info(f"Invalid row {row} with error: {e}")
+                    logger.info(f"Invalid row {row} with error: {e}")
                 continue
             yield row
 
