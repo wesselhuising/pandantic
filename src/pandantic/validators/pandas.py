@@ -115,8 +115,8 @@ class PandasValidator(BaseValidator):
     def _validate_chunk(
         self,
         chunk: dict[Hashable, Any],
+        queue: Any,
         errors: Literal["skip", "raise", "log"] = "raise",
-        queue: Optional[Queue] = None,
         context: Optional[
             dict[str, Any]
         ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
