@@ -2,7 +2,10 @@
 name = "pandantic"
 version = "0.1.2"
 description = "Validate various dataframes like Pandas using the Pydantic API"
-authors = ["wessel.huising <wessel@plattevorm.nl>", "Xavier Rojas Nogueira <>"]
+authors = [
+  "wessel.huising <wessel@plattevorm.nl>",
+  "Xavier Rojas Nogueira <xavier.rojas.nogueira@gmail.com>",
+]
 readme = "README.md"
 
 packages = [{ include = "pandantic", from = "src" }]
