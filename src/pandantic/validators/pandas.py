@@ -23,7 +23,9 @@ class PandasValidator(BaseValidator):
         self,
         dataframe: pd.DataFrame,
         errors: Literal["skip", "raise", "log"] = "raise",
-        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
+        context: Optional[
+            dict[str, Any]
+        ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
         n_jobs: int = 1,
         queue: Optional[Queue] = None,
     ) -> pd.DataFrame:
@@ -57,9 +59,7 @@ class PandasValidator(BaseValidator):
             if queue is None:
                 queue = Queue()
             elif "queue" not in str(type(queue)).lower():
-                logging.warning(
-                    f"Expecting queue object for arg:queue, not {type(queue)}!"
-                )
+                logging.warning(f"Expecting queue object for arg:queue, not {type(queue)}!")
             else:
                 assert hasattr(queue, "get"), "Queue object must have a put method."
                 assert hasattr(queue, "put"), "Queue object must have a put method."
@@ -67,9 +67,7 @@ class PandasValidator(BaseValidator):
             # send chunks to be processed
             for i in range(num_chunks):
                 chunks.append(
-                    dataframe.iloc[i * chunk_size : (i + 1) * chunk_size].to_dict(
-                        "index"
-                    )
+                    dataframe.iloc[i * chunk_size : (i + 1) * chunk_size].to_dict("index")
                 )
 
             for i in range(num_chunks):
@@ -101,18 +99,14 @@ class PandasValidator(BaseValidator):
                     )
                 except ValidationError as exc:  # pylint: disable=broad-exception-caught
                     if errors == "log":
-                        logging.info(
-                            "Validation error found at index %s\n%s", index, exc
-                        )
+                        logging.info("Validation error found at index %s\n%s", index, exc)
 
                     errors_index.append(index)
 
         logging.debug("# invalid rows: %s", len(errors_index))
 
         if len(errors_index) > 0 and errors == "raise":
-            raise ValueError(
-                f"{len(errors_index)} validation errors found in dataframe."
-            )
+            raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
         if len(errors_index) > 0 and errors == "skip":
             return dataframe[~dataframe.index.isin(list(errors_index))]
 
@@ -123,7 +117,9 @@ class PandasValidator(BaseValidator):
         chunk: dict[Hashable, Any],
         errors: Literal["skip", "raise", "log"] = "raise",
         queue: Optional[Queue] = None,
-        context: Optional[dict[str, Any]] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
+        context: Optional[
+            dict[str, Any]
+        ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
     ) -> None:
         """Validate a single chunk of a DataFrame.
 
