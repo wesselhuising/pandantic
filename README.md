@@ -54,8 +54,8 @@ df_filtered = DataFrameSchema.parse_df(
 ## Pandas plugin
 
 Another way to use `pandantic` is via our [`pandas.DataFrame` extension](https://pandas.pydata.org/docs/development/extending.html) plugin. This adds the following methods to `pandas` (once "registered" by `import pandantic.plugins.pandas`):
-* `DataFrame.pydantic.validate(schema:PandanticBaseModel)`, which returns a boolean for all valid inputs.
-* `DataFrame.pydantic.filter(schema:PandanticBaseModel)`, which wraps `PandanticBaseModel.parse_obj(errors="filter")` and returns as dataframe.
+* `DataFrame.pandantic.validate(schema:PandanticBaseModel)`, which returns a boolean for all valid inputs.
+* `DataFrame.pandantic.filter(schema:PandanticBaseModel)`, which wraps `PandanticBaseModel.parse_obj(errors="filter")` and returns as dataframe.
 
 **Example:**
 ```python
@@ -67,14 +67,14 @@ class MyModel(BaseModel):
     a: int
     b: str
 
-df1.pydantic.validate(MyModel)  # returns True
-df1.pydantic.filter(MyModel)  # returns the same dataframe
+df1.pandantic.validate(MyModel)  # returns True
+df1.pandantic.filter(MyModel)  # returns the same dataframe
 
 # but if we have a mixed DataFrame
 df2: pd.DataFrame = pd.DataFrame({"a": [1, 2, "3"], "b": ["a", 3, "c"]})
 
-df2.pydantic.validate(MyModel)  # returns False
-df2.pydantic.filter(MyModel)  # returns the filtered DataFrame with only the first row
+df2.pandantic.validate(MyModel)  # returns False
+df2.pandantic.filter(MyModel)  # returns the filtered DataFrame with only the first row
 ```
 
 ## Custom validator example

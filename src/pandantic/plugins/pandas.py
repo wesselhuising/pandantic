@@ -23,7 +23,7 @@ from pandantic.basemodel import CoreValidator
 logger = logging.getLogger(__name__)
 
 
-@pd.api.extensions.register_dataframe_accessor("pydantic")
+@pd.api.extensions.register_dataframe_accessor("pandantic")
 class PydanticAccessor:
     def __init__(self, pandas_obj: pd.DataFrame):
         assert isinstance(pandas_obj, pd.DataFrame), "Only works with DataFrames!"
