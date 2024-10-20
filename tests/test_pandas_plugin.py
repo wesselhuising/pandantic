@@ -42,30 +42,30 @@ def test_plugin(dataframe: pd.DataFrame):
     """Test the plugin."""
     import pandantic.plugins.pandas
 
-    assert getattr(dataframe, "pydantic")
-    assert getattr(dataframe.pydantic, "validate")
-    assert getattr(dataframe.pydantic, "filter")
+    assert getattr(dataframe, "pandantic")
+    assert getattr(dataframe.pandantic, "validate")
+    assert getattr(dataframe.pandantic, "filter")
 
 
 def test_validate(dataframe: pd.DataFrame):
     import pandantic.plugins.pandas
 
-    assert dataframe.pydantic.validate(schema=DataFrameSchema1)
-    assert not dataframe.pydantic.validate(schema=DataFrameSchema2)
+    assert dataframe.pandantic.validate(schema=DataFrameSchema1)
+    assert not dataframe.pandantic.validate(schema=DataFrameSchema2)
 
 
 def test_filter(dataframe: pd.DataFrame):
     import pandantic.plugins.pandas
 
-    assert dataframe.pydantic.filter(schema=DataFrameSchema1).shape[0] == 3
-    assert dataframe.pydantic.filter(schema=DataFrameSchema2).shape[0] == 0
+    assert dataframe.pandantic.filter(schema=DataFrameSchema1).shape[0] == 3
+    assert dataframe.pandantic.filter(schema=DataFrameSchema2).shape[0] == 0
 
 
 def test_itertuples(dataframe: pd.DataFrame):
     import pandantic.plugins.pandas
 
     out_list = []
-    for i in dataframe.pydantic.itertuples(DataFrameSchema1):
+    for i in dataframe.pandantic.itertuples(DataFrameSchema1):
         out_list.append(i)
 
     assert len(out_list) == 3
@@ -76,7 +76,7 @@ def test_iterrows(dataframe: pd.DataFrame):
     import pandantic.plugins.pandas
 
     out_list = []
-    for i in dataframe.pydantic.iterrows(DataFrameSchema1):
+    for i in dataframe.pandantic.iterrows(DataFrameSchema1):
         out_list.append(i)
 
     assert len(out_list) == 3
@@ -89,7 +89,7 @@ def test_iterschemas(dataframe: pd.DataFrame):
     import pandantic.plugins.pandas
 
     out_list = []
-    for i in dataframe.pydantic.iterschemas(DataFrameSchema1):
+    for i in dataframe.pandantic.iterschemas(DataFrameSchema1):
         out_list.append(i)
 
     assert len(out_list) == 3
