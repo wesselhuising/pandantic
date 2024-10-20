@@ -45,7 +45,6 @@ class PydanticAccessor:
                 errors="raise",
                 context=kwargs,
                 n_jobs=n_jobs or 1,
-                verbose=verbose,
             )
         except Exception as e:
             logging.info(f"Invalid dataframe for {schema=}. Exception: {e}")
@@ -64,12 +63,15 @@ class PydanticAccessor:
             raise TypeError("Arg `schema` must be a pydantic.BaseModel subclass!")
 
         schema_validator = CoreValidator(schema)  # type: ignore
+        if verbose:
+            errors = "log"
+        else:
+            errors = "skip"
         filtered_df: pd.DataFrame = schema_validator.validate(
             dataframe=self.obj,
-            errors="filter",
+            errors=errors,
             context=kwargs,
             n_jobs=n_jobs or 1,
-            verbose=verbose,
         )
         assert isinstance(filtered_df, pd.DataFrame)
         return filtered_df
