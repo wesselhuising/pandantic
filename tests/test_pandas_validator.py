@@ -1,15 +1,14 @@
 """Tests the core functionality of PandasValidator using a more complex
 pydantic model w/ a custom int and str column validator:
     * validate() function (full table).
-    * validate() function (to filter table).
-    * iterate() function.
+    * validate() function (to skip table).
 """
 import logging
 from typing import Optional
 
 import pandas as pd
 import pytest
-from pydantic import BaseModel, ValidationError, field_validator
+from pydantic import BaseModel, field_validator
 
 from pandantic.validators.pandas import PandasValidator
 
@@ -29,7 +28,7 @@ class DataFrameSchema(BaseModel):
     def validate_even_integer(cls, x: int) -> int:  # pylint: disable=invalid-name, no-self-argument
         """Example custom validator to validate if int is even."""
         if x % 2 != 0:
-            raise ValidationError(f"example_int must be even, is {x}.")
+            raise ValueError(f"example_int must be even, is {x}.")
         return x
 
     @field_validator("example_str")
@@ -38,7 +37,7 @@ class DataFrameSchema(BaseModel):
     ) -> str:
         """Example custom validator to validate if int is even."""
         if x not in COUNTRY_LIST:
-            raise ValidationError(f"example_str must be part of country list, is {x}.")
+            raise ValueError(f"example_str must be part of country list, is {x}.")
         return x
 
 
@@ -60,10 +59,10 @@ def test_custom_validator_pass(validator: PandasValidator):
     )
 
     # WHEN -> THEN
-    result = validator.validate(valid_df, errors="filter")
+    result = validator.validate(valid_df, errors="skip")
     assert result.equals(valid_df)
 
-    result = validator.validate(valid_df, errors="filter", n_jobs=2)
+    result = validator.validate(valid_df, errors="skip", n_jobs=2)
     assert result.equals(valid_df)
 
 
@@ -79,10 +78,10 @@ def test_custom_str_validator_fail(validator: PandasValidator):
     )
 
     # WHEN -> THEN
-    result = validator.validate(int_invalid_df, errors="filter")
+    result = validator.validate(int_invalid_df, errors="skip")
     assert result.equals(int_invalid_df.drop(index=[0]))
 
-    result = validator.validate(int_invalid_df, errors="filter", n_jobs=2)
+    result = validator.validate(int_invalid_df, errors="skip", n_jobs=2)
     assert result.equals(int_invalid_df.drop(index=[0]))
 
 
@@ -97,10 +96,10 @@ def test_custom_int_validator_fail(validator: PandasValidator):
     )
 
     # WHEN -> THEN
-    result = validator.validate(str_invalid_df, errors="filter")
+    result = validator.validate(str_invalid_df, errors="skip")
     assert result.equals(str_invalid_df.drop(index=[0]))
 
-    result = validator.validate(str_invalid_df, errors="filter", n_jobs=2)
+    result = validator.validate(str_invalid_df, errors="skip", n_jobs=2)
     assert result.equals(str_invalid_df.drop(index=[0]))
 
 
@@ -136,10 +135,10 @@ def test_optional_int_parse_df_with_default():
     validator = PandasValidator(schema=Model)
 
     # WHEN
-    df_filtered = validator.validate(df_example, errors="filter", verbose=True)
+    df_skiped = validator.validate(df_example, errors="skip")
 
     # THEN
-    assert len(df_filtered) == 1
+    assert len(df_skiped) == 1
 
 
 def test_optional_int_parse_df_all_none():
@@ -152,7 +151,7 @@ def test_optional_int_parse_df_all_none():
     validator = PandasValidator(schema=Model)
 
     # WHEN
-    df_filtered = validator.validate(df_example, errors="filter", verbose=True)
+    df_skiped = validator.validate(df_example, errors="skip")
 
     # THEN
-    assert df_filtered.equals(df_example)
+    assert df_skiped.equals(df_example)
