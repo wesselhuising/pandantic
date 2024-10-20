@@ -34,6 +34,7 @@ class PandasValidator(BaseValidator):
         Args:
             dataframe (pd.DataFrame): The DataFrame to validate.
             errors (Literal["skip", "raise", "log"], optional): How to handle validation errors. Defaults to "raise".
+                NOTE: "skip" and "log" effectively filter the dataframe, excluding invalid rows.
             context (Optional[dict[str, Any]], optional): The context to use for validation. Defaults to None.
             n_jobs (int, optional): The number of processes to use for validation. Defaults to 1.
             queue (Optional[Queue], optional): A custom Queue object for multiprocessing. Defaults to None.
@@ -120,11 +121,12 @@ class PandasValidator(BaseValidator):
             dict[str, Any]
         ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
     ) -> None:
-        """Validate a single chunk of a DataFrame.
+        """Validate a single chunk of a DataFrame converted to a dictionary w/ index values as keys.
 
         Args:
             chunk (dict[Hashable, Any]): The DataFrame chunk to validate.
             errors (Literal["skip", "raise", "log"], optional): How to handle validation errors. Defaults to "raise".
+                NOTE: "skip" and "log" effectively filter the dataframe, excluding invalid rows.
             queue (Optional[Queue], optional): The queue to put the index of the row in case of an error.
             context (Optional[dict[str, Any]], optional): The context to use for validation. Defaults to None.
         """
