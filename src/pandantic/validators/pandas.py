@@ -107,9 +107,8 @@ class PandasValidator(BaseValidator):
 
         if len(errors_index) > 0 and errors == "raise":
             raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
-        if len(errors_index) > 0 and errors == "skip":
+        if len(errors_index) > 0 and errors in ["skip", "log"]:
             return dataframe[~dataframe.index.isin(list(errors_index))]
-
         return dataframe
 
     def _validate_chunk(
