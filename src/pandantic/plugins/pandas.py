@@ -4,19 +4,23 @@ See: https://pandas.pydata.org/pandas-docs/version/2.1/development/extending.htm
 Adds the following methods:
     df.pydantic.validate()
     df.pydantic.filter()
+    df.pydantic.itertuples()
+    df.pydantic.iterrows()
+    df.pydantic.iterschemas()
 
 To register plugin: `from pandantic.plugins import pandas_plugin #(or *)`
 """
 import logging
-from typing import Any, Dict, Hashable, Iterable, Optional
+from collections.abc import Hashable, Iterable
+from typing import Any, Optional
 
 import pandas as pd
 from pydantic import BaseModel, ValidationError
 
-from pandantic.validators.pandas import PandasValidator
+from pandantic.basemodel import CoreValidator
 
 
-logger = logging.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @pd.api.extensions.register_dataframe_accessor("pydantic")
@@ -35,20 +39,18 @@ class PydanticAccessor:
         self,
         schema: BaseModel,
         n_jobs: Optional[int] = None,
-        verbose: bool = True,
-        **kwargs: Optional[Dict[str, Any]],
+        **kwargs: Optional[dict[str, Any]],
     ) -> bool:
         if not isinstance(schema, type(BaseModel)):
             raise TypeError("Arg `schema` must be a pydantic.BaseModel subclass!")
 
-        schema_validator = PandasValidator(schema)  # type: ignore[unreachable]
+        schema_validator = CoreValidator(schema)  # type: ignore
         try:
             _ = schema_validator.validate(
                 dataframe=self.obj,
                 errors="raise",
                 context=kwargs,
                 n_jobs=n_jobs or 1,
-                verbose=verbose,
             )
         except Exception as e:
             logger.info(f"Invalid dataframe for {schema=}. Exception: {e}")
@@ -61,18 +63,21 @@ class PydanticAccessor:
         schema: BaseModel,
         n_jobs: Optional[int] = None,
         verbose: bool = True,
-        **kwargs: Optional[Dict[str, Any]],
+        **kwargs: Optional[dict[str, Any]],
     ) -> pd.DataFrame:
         if not isinstance(schema, type(BaseModel)):
             raise TypeError("Arg `schema` must be a pydantic.BaseModel subclass!")
 
-        schema_validator = PandasValidator(schema)  # type: ignore[unreachable]
+        schema_validator = CoreValidator(schema)  # type: ignore
+        if verbose:
+            errors = "log"
+        else:
+            errors = "skip"
         filtered_df: pd.DataFrame = schema_validator.validate(
             dataframe=self.obj,
-            errors="filter",
+            errors=errors,
             context=kwargs,
             n_jobs=n_jobs or 1,
-            verbose=verbose,
         )
         assert isinstance(filtered_df, pd.DataFrame)
         return filtered_df
@@ -96,7 +101,7 @@ class PydanticAccessor:
         self, schema: BaseModel, verbose: bool = True, **kwargs
     ) -> Iterable[tuple[Hashable, pd.Series]]:  # type: ignore[type-arg]
         """Same as normal .iterrows(), except invalid rows are skipped."""
-        schema_validator = PandasValidator(schema)
+        schema_validator = CoreValidator(schema)
         for i, _ in schema_validator.iterate(dataframe=self.obj, context=kwargs, verbose=verbose):
             yield i, self.obj.loc[i]  # type: ignore[call-overload]
 
@@ -104,5 +109,5 @@ class PydanticAccessor:
         self, schema: BaseModel, verbose: bool = True, **kwargs
     ) -> Iterable[tuple[Hashable, Any]]:
         """Iterate over DataFrame rows as validated schema models."""
-        schema_validator = PandasValidator(schema)
+        schema_validator = CoreValidator(schema)
         return schema_validator.iterate(dataframe=self.obj, context=kwargs, verbose=verbose)

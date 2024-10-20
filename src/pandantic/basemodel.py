@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Hashable, Iterable
 from typing import Any
 
 import pandas as pd
@@ -23,5 +24,8 @@ class CoreValidator:
 
         raise TypeError(f"Could not find any implementation for dataframe type: {type(dataframe)}")
 
-    def validate(self, dataframe: TableTypes, **args) -> Any:  # type: ignore
-        return self._get_implementation(dataframe).validate(dataframe=dataframe, **args)
+    def validate(self, dataframe: TableTypes, **kwargs) -> Any:  # type: ignore
+        return self._get_implementation(dataframe).validate(dataframe=dataframe, **kwargs)
+
+    def iterate(self, dataframe: TableTypes, **kwargs) -> Iterable[tuple[Hashable, Any]]:  # type: ignore
+        return self._get_implementation(dataframe).iterate(dataframe=dataframe, **kwargs)
