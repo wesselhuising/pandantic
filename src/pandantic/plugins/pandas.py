@@ -45,7 +45,6 @@ class PydanticAccessor:
                 errors="raise",
                 context=kwargs,
                 n_jobs=n_jobs or 1,
-                verbose=verbose,
             )
         except Exception as e:
             logging.info(f"Invalid dataframe for {schema=}. Exception: {e}")
