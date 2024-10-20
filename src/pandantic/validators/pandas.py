@@ -147,6 +147,7 @@ class PandasValidator(BaseValidator):
         logging.debug("Process ended.")
 
         queue.put(None)
+        
 
     def iterate(
         self,
@@ -167,3 +168,4 @@ class PandasValidator(BaseValidator):
                 if verbose:
                     logging.info(f"Validation error found at index {i}, skipping: {e}.")
                 continue
+
