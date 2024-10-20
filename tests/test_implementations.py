@@ -1,7 +1,8 @@
 """Tests that our core Pandantic class routes to implemenations correctly."""
-import pytest
 import pandas as pd
+import pytest
 from pydantic import BaseModel
+
 from pandantic import Pandantic
 from pandantic.validators.pandas import PandasValidator
 
