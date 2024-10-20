@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Hashable, Iterable
+from collections.abc import Hashable, Iterable
+from typing import Any
 
 
 class BaseValidator(ABC):
