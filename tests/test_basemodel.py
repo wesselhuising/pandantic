@@ -58,7 +58,7 @@ def test_dataframe_invalid_filter_strict_int():
     # GIVEN
     df_valid_filtered = validator.validate(
         dataframe=example_df_invalid,
-        errors="filter",
+        errors="skip",
     )
 
     print(df_valid_filtered)

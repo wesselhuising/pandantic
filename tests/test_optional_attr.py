@@ -57,7 +57,7 @@ class TestOptional:
         validator = Pandantic(schema=Model)
 
         # WHEN
-        df_filtered = validator.validate(df_example, errors="filter", verbose=True)
+        df_filtered = validator.validate(df_example, errors="log")
 
         # THEN
         assert df_filtered.equals(df_example.drop(index=[0]))
@@ -75,7 +75,7 @@ class TestOptional:
         validator = Pandantic(schema=Model)
 
         # WHEN
-        df_filtered = validator.validate(df_example, errors="filter", verbose=True)
+        df_filtered = validator.validate(df_example, errors="log")
 
         # THEN
         assert df_filtered.equals(df_example)
