@@ -1,7 +1,7 @@
 import logging
 import math
 import os
-from collections.abc import Hashable
+from collections.abc import Hashable, Iterable
 from typing import Any, Literal, Optional
 
 import pandas as pd
@@ -34,6 +34,7 @@ class PandasValidator(BaseValidator):
         Args:
             dataframe (pd.DataFrame): The DataFrame to validate.
             errors (Literal["skip", "raise", "log"], optional): How to handle validation errors. Defaults to "raise".
+                NOTE: "skip" and "log" effectively filter the dataframe, excluding invalid rows.
             context (Optional[dict[str, Any]], optional): The context to use for validation. Defaults to None.
             n_jobs (int, optional): The number of processes to use for validation. Defaults to 1.
             queue (Optional[Queue], optional): A custom Queue object for multiprocessing. Defaults to None.
@@ -120,11 +121,12 @@ class PandasValidator(BaseValidator):
             dict[str, Any]
         ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
     ) -> None:
-        """Validate a single chunk of a DataFrame.
+        """Validate a single chunk of a DataFrame converted to a dictionary w/ index values as keys.
 
         Args:
             chunk (dict[Hashable, Any]): The DataFrame chunk to validate.
             errors (Literal["skip", "raise", "log"], optional): How to handle validation errors. Defaults to "raise".
+                NOTE: "skip" and "log" effectively filter the dataframe, excluding invalid rows.
             queue (Optional[Queue], optional): The queue to put the index of the row in case of an error.
             context (Optional[dict[str, Any]], optional): The context to use for validation. Defaults to None.
         """
@@ -145,3 +147,23 @@ class PandasValidator(BaseValidator):
         logging.debug("Process ended.")
 
         queue.put(None)
+
+    def iterate(
+        self,
+        dataframe: pd.DataFrame,
+        context: Optional[
+            dict[str, Any]
+        ] = None,  # pylint: disable=consider-alternative-union-syntax,useless-suppression
+        verbose: bool = True,
+    ) -> Iterable[tuple[Hashable, SchemaTypes]]:
+        """Iterate over a DataFrame and yield validated schema models."""
+        for i, row in dataframe.iterrows():
+            try:
+                yield i, self.schema.model_validate(
+                    obj=row.to_dict(),
+                    context=context,
+                )
+            except Exception as e:
+                if verbose:
+                    logging.info(f"Validation error found at index {i}, skipping: {e}.")
+                continue
