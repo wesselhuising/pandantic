@@ -1,13 +1,14 @@
 [tool.poetry]
 name = "pandantic"
 version = "0.1.2"
-description = ""
-authors = ["wessel.huising <wessel.huising@mollie.com>"]
+description = "Gone are the days of black-box dataframes in otherwise type-safe code! Pandantic builds off the Pydantic API to enable validation and filtering of the usual dataframe types (i.e., pandas, etc.)"
+authors = [
+  "Wessel Huising <wessel@plattevorm.nl>",
+  "Xavier Rojas Nogueira <xavier.rojas.nogueira@gmail.com>",
+]
 readme = "README.md"
 
-packages = [
-    { include = "pandantic", from = "src" }
-]
+packages = [{ include = "pandantic", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
