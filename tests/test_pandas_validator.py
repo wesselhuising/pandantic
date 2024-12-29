@@ -164,9 +164,7 @@ def test_strict_mode():
         a: Optional[int] = None
         b: str
 
-    df_example = pd.DataFrame(
-        {"a": [None, None, None], "b": ["str", "str", "str"], "c": [1, 2, 3]}
-    )
+    df_example = pd.DataFrame({"a": [None, None, None], "b": ["str", "str", "str"], "c": [1, 2, 3]})
     validator = PandasValidator(schema=Model)
 
     # WHEN
