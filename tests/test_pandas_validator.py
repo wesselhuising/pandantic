@@ -3,6 +3,7 @@ pydantic model w/ a custom int and str column validator:
     * validate() function (full table).
     * validate() function (to skip table).
 """
+
 import logging
 from typing import Optional
 
@@ -155,3 +156,30 @@ def test_optional_int_parse_df_all_none():
 
     # THEN
     assert df_skiped.equals(df_example)
+
+
+def test_strict_mode():
+    # GIVEN
+    class Model(BaseModel):
+        a: Optional[int] = None
+        b: str
+
+    df_example = pd.DataFrame(
+        {"a": [None, None, None], "b": ["str", "str", "str"], "c": [1, 2, 3]}
+    )
+    validator = PandasValidator(schema=Model)
+
+    # WHEN
+    df_skiped = validator.validate(df_example, errors="skip")
+
+    # THEN
+    assert df_skiped.equals(df_example)
+
+    # THEN
+    with pytest.raises(ValueError):
+        # WHEN
+        validator.validate(
+            dataframe=df_example,
+            strict=True,
+            errors="raise",
+        )
