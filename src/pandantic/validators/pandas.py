@@ -45,6 +45,7 @@ class PandasValidator(BaseValidator):
             pd.DataFrame: The original DataFrame if errors="raise" or "log", or a filtered DataFrame with valid rows if errors="skip".
         """
         # check for extra columns and handle strict mode
+        # NOTE: this will need to be abstracted to handle different types of schema objects 
         extras = {col for col in dataframe.columns if col not in self.schema.model_fields.keys()}
         if strict and extras:
             raise ValueError(
