@@ -45,13 +45,16 @@ class PandasValidator(BaseValidator):
             pd.DataFrame: The original DataFrame if errors="raise" or "log", or a filtered DataFrame with valid rows if errors="skip".
         """
         # check for extra columns and handle strict mode
-        # NOTE: this will need to be abstracted to handle different types of schema objects 
-        extras = {col for col in dataframe.columns if col not in self.schema.model_fields.keys()}
-        if strict and extras:
-            raise ValueError(
-                f"Strict mode is enabled but the following extra columns were found in the schema: {extras}."
-            )
-        del extras
+        # NOTE: this will need to be abstracted to handle different types of schema objects
+        if strict:
+            extras = {
+                col for col in dataframe.columns if col not in self.schema.model_fields.keys()
+            }
+            if extras:
+                raise ValueError(
+                    f"Strict mode is enabled but the following extra columns were found in the schema: {extras}."
+                )
+            del extras
 
         if errors not in ["skip", "raise", "log"]:
             raise ValueError("errors must be one of 'skip', 'raise', or 'log'")
@@ -112,13 +115,12 @@ class PandasValidator(BaseValidator):
                 except ValidationError as exc:  # pylint: disable=broad-exception-caught
                     if errors == "log":
                         logging.info("Validation error found at index %s\n%s", index, exc)
-
+                    if errors == "raise":
+                        raise exc
                     errors_index.append(index)
 
         logging.debug("# invalid rows: %s", len(errors_index))
 
-        if len(errors_index) > 0 and errors == "raise":
-            raise ValueError(f"{len(errors_index)} validation errors found in dataframe.")
         if len(errors_index) > 0 and errors in ["skip", "log"]:
             return dataframe[~dataframe.index.isin(list(errors_index))]
         return dataframe
@@ -152,7 +154,8 @@ class PandasValidator(BaseValidator):
             except ValidationError as exc:  # pylint: disable=broad-exception-caught
                 if errors == "log":
                     logging.info("Validation error found at index %s\n%s", index, exc)
-
+                if errors == "raise":
+                    raise exc
                 queue.put(index)
 
         logging.debug("Process ended.")
