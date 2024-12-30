@@ -44,19 +44,13 @@ class PandasValidator(BaseValidator):
         Returns:
             pd.DataFrame: The original DataFrame if errors="raise" or "log", or a filtered DataFrame with valid rows if errors="skip".
         """
-        if strict:
-            df_columns = set(dataframe.columns)
-            schema_columns = set(self.schema.model_fields.keys())
-
-            if len(df_columns) != len(schema_columns):
-                raise ValueError(
-                    "Strict mode is enabled but column lenght of dataframe and schema are not equal."
-                )
-
-            if len(df_columns.difference(schema_columns)) > 0:
-                raise ValueError(
-                    "Strict mode is enabled but columns of dataframe and schema are not the same."
-                )
+        # check for extra columns and handle strict mode
+        extras = {col for col in dataframe.columns if col not in self.schema.model_fields.keys()}
+        if strict and extras:
+            raise ValueError(
+                f"Strict mode is enabled but the following extra columns were found in the schema: {extras}."
+            )
+        del extras
 
         if errors not in ["skip", "raise", "log"]:
             raise ValueError("errors must be one of 'skip', 'raise', or 'log'")
