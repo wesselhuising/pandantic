@@ -36,6 +36,7 @@ class PandasValidator(BaseValidator):
             dataframe (pd.DataFrame): The DataFrame to validate.
             errors (Literal["skip", "raise", "log"], optional): How to handle validation errors. Defaults to "raise".
                 NOTE: "skip" and "log" effectively filter the dataframe, excluding invalid rows.
+            strict (bool, default=False): whether to fail validation if extra fields/columns are present.
             context (Optional[dict[str, Any]], optional): The context to use for validation. Defaults to None.
             n_jobs (int, optional): The number of processes to use for validation. Defaults to 1.
             queue (Optional[Queue], optional): A custom Queue object for multiprocessing. Defaults to None.
