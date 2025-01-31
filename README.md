@@ -61,7 +61,7 @@ Another way to use `pandantic` is via our [`pandas.DataFrame` extension](https:/
 
 ```python
 import pandantic.plugins.pandas
-from pandantic import BaseModel
+from pydantic import BaseModel
 
 
 df1: pd.DataFrame = pd.DataFrame({"a": [1, 2, 3], "b": ["a", "b", "c"]})
