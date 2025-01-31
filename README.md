@@ -61,6 +61,7 @@ Another way to use `pandantic` is via our [`pandas.DataFrame` extension](https:/
 
 ```python
 import pandantic.plugins.pandas
+import pandas as pd
 from pydantic import BaseModel
 
 
