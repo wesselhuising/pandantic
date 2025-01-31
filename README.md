@@ -1,6 +1,6 @@
 # pandantic
 
-`pandantic` introduces the ability to validate (`pandas`) DataFrames using `pydantic.BaseModel`s. The `pandantic` package is using the V2 version of `pydantic` as it has significant improvements over its V1 versions (a performance increase up to 50 times).
+`pandantic` introduces the ability to validate (`pandas`) DataFrames using the `pydantic.BaseModel`. The package is still in development and wants to focus on more dataframe types in the future (like polars and spark) besides pandas. Currently, only the `pandas` type is supported together with a pandas plugin.
 
 First, install `pandantic` by using pip (or any other package managing tool).
 
@@ -141,7 +141,4 @@ class Model(BaseModel):
 df_example = pd.DataFrame({"a": [1, None, 2], "b": ["str", 2, 3]})
 
 validator = Pandantic(schema=Model)
-
-# WHEN
-df_filtered = validator.validate(df_example, errors="log")
 ```
