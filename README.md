@@ -60,9 +60,10 @@ Another way to use `pandantic` is via our [`pandas.DataFrame` extension](https:/
 **Example:**
 
 ```python
-import pandantic.plugins.pandas
 import pandas as pd
 from pydantic import BaseModel
+
+import pandantic.plugins.pandas
 
 
 df1: pd.DataFrame = pd.DataFrame({"a": [1, 2, 3], "b": ["a", "b", "c"]})
