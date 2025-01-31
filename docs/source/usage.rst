@@ -59,5 +59,3 @@ As the DataFrame is being parsed into a dict, a `None` value is considered as a 
     df_example = pd.DataFrame({"a": [1, None, 2], "b": ["str", 2, 3]})
 
     df_filtered = Model.parse_df(df_example, errors="filter", verbose=True)
-
-

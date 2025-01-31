@@ -4,7 +4,7 @@ Pandas plugin
 Another way to use `pandantic` is via our [`pandas.DataFrame` extension](https://pandas.pydata.org/docs/development/extending.html) plugin. This adds the following methods to `pandas` (once "registered" by `import pandantic.plugins.pandas`):
 * `DataFrame.pandantic.validate(schema:PandanticBaseModel)`, which returns a boolean for all valid inputs.
 * `DataFrame.pandantic.filter(schema:PandanticBaseModel)`, which wraps `PandanticBaseModel.parse_obj(errors="filter")` and returns as dataframe.
-* `DataFrame.pandantic.iterschemas(schema:PandanticBaseModel)`, which wraps `PandanticBaseModel.parse_obj(errors="filter")` 
+* `DataFrame.pandantic.iterschemas(schema:PandanticBaseModel)`, which wraps `PandanticBaseModel.parse_obj(errors="filter")`
   which returns an iterable w/ row indices and the instantiated schema objects.
 
 The plugin also supports existing `DataFrame` iteration methods, except that it only returns valid rows data:
@@ -12,8 +12,8 @@ The plugin also supports existing `DataFrame` iteration methods, except that it 
 * `DataFrame.pandantic.iterrows(schema:PandanticBaseModel)`, which wraps `PandanticBaseModel.parse_obj(errors="filter")` and returns as dataframe.
 
 .. code-block:: python
-    from pandantic import BaseModel
     import pandantic.plugins.pandas
+    from pandantic import BaseModel
 
     # we start by defining a schema
     class MyModel(BaseModel):
