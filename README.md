@@ -1,6 +1,6 @@
 # pandantic
 
-`pandantic` introduces the ability to validate (`pandas`) DataFrames using the `pydantic.BaseModel`. The package is still in development and wants to focus on more dataframe types in the future (like polars and spark) besides pandas. Currently, only the `pandas` type is supported together with a pandas plugin.
+`pandantic` introduces the ability to validate (`pandas`) DataFrames using the `pydantic.BaseModel`. The package is still in development and wants to focus on more dataframe types in the future (like `polars` and `spark`) besides `pandas`. Currently, only the `pandas` type is supported together with a `pandas` plugin.
 
 First, install `pandantic` by using pip (or any other package managing tool).
 
