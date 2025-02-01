@@ -1,61 +1,118 @@
-Usage
-=====
+Pandantic usage
+===============
 
-Below are some usage examples in more nuanced scenarios.
+Installation
+------------
 
-Custom validator example
-------------------------
+First, install `pandantic` by using pip (or any other package managing tool).
 
-One of the great features of Pydantic is the ability to ## Custom validator example
+```pip install pandantic```
 
-One of the great features of Pydantic is the ability to create custom validators. Luckily, those custom validators will also work when parsing DataFrames using `pandantic`. Make sure to import the original decorator from the `pydantic` package and keep in mind that `pandantic` is using the V2 of Pydantic (so `field_validation` it is). In the example below the `BaseModel` will validate the `example_int` field and makes sure it is an even number.
+Using the validator
+-------------------
 
-from pydantic import ValidationError, field_validator
+```python
+from pydantic import BaseModel
+from pydantic.types import StrictInt
 
+from pandantic import Pandantic
+
+
+# Define your schema using Pydantic BaseModel
+class DataFrameSchema(BaseModel):
+    """Example schema for testing."""
+    example_str: str
+    example_int: StrictInt
+
+# Create a validator instance
+validator = Pandantic(schema=DataFrameSchema)
+
+# Example DataFrame with some invalid data
+df_invalid = pd.DataFrame(
+    data={
+        "example_str": ["foo", "bar", 1],  # Last value is invalid (int instead of str)
+        "example_int": ["1", 2, 3.0],      # First and last values are invalid (str and float)
+    }
+)
+
+# Validate with error raising
+try:
+    validator.validate(dataframe=df_invalid, errors="raise")
+except ValueError:
+    print("Validation failed!")
+
+# Or filter out invalid rows
+df_valid = validator.validate(dataframe=df_invalid, errors="skip")
+# Only the second row remains as it's the only valid one
+```
+
+The validator supports two modes:
+
+- `errors="raise"`: Raises a ValueError if any row fails validation
+- `errors="skip"`: Returns a new DataFrame with only the valid rows
+
+
+Advanced features
+=================
+
+Strict Type Validation
+----------------------
+
+The validator supports Pydantic's strict types for more rigorous validation:
 
 .. code-block:: python
-    class DataFrameSchema(BaseModel):
-        """Example schema for testing."""
+  from pydantic import BaseModel
+  from pydantic.types import StrictInt
+  from pandantic import Pandantic
 
-        example_str: str
-        example_int: int
+  class StrictSchema(BaseModel):
+      example_str: str
+      example_int: StrictInt  # Will only accept actual integers
 
-        @field_validator("example_int")
-        def validate_even_integer(  # pylint: disable=invalid-name, no-self-argument
-            cls, x: int
-        ) -> int:
-            """Example custom validator to validate if int is even."""
-            if x % 2 != 0:
-                raise ValidationError(f"example_int must be even, is {x}.")
-        return x
+  validator = Pandantic(schema=StrictSchema)
+  df = pd.DataFrame({
+      "example_str": ["foo", "bar"],
+      "example_int": [1, "2"]  # Second value will fail as it's a string
+  })
 
-By setting the `errors` argument to `raise`, the code will raise an ValueError after validating every row as the first row contains an uneven number.
+  # This will only keep the first row
+  df_valid = validator.validate(dataframe=df, errors="skip")
+
+Custom Validators
+-----------------
+
+You can still use all of Pydantic's validation features in your schema:
 
 .. code-block:: python
-    example_df_invalid = pd.DataFrame(
-        data={
-            "example_str": ["foo", "bar", "baz"],
-            "example_int": [1, 4, 12],
-        }
-    )
+  from pydantic import BaseModel, field_validator
+  from pandantic import Pandantic
 
-    df_raised_error = DataFrameSchema.parse_df(
-        dataframe=example_df_invalid,
-        errors="raise",
-    )
+  class CustomSchema(BaseModel):
+      example_str: str
+      example_int: int
 
-Special fields and types
-------------------------
+      @field_validator("example_int")
+      def must_be_even(cls, v: int) -> int:
+          if v % 2 != 0:
+              raise ValueError("Number must be even")
+          return v
+
+  validator = Pandantic(schema=CustomSchema)
+
+Optional Fields
+---------------
 
 As the DataFrame is being parsed into a dict, a `None` value is considered as a `nan` value in cases there are different values in the dict. Therefore, specifying `Optional` columns (where the value can be empty) can be speciyfied by using the custom `pandantic.Optional` type. This type is a replacement for `typing.Optional`.
 
 .. code-block:: python
-    from pandantic import BaseModel, Optional
+  from pydantic import BaseModel
+  from pandantic import Optional  # pylint: disable=import-outside-toplevel
 
-    class Model(BaseModel):
-        a: Optional[int] = None
-        b: int
+  # GIVEN
+  class Model(BaseModel):
+      a: Optional[int] = None
+      b: int
 
-    df_example = pd.DataFrame({"a": [1, None, 2], "b": ["str", 2, 3]})
+  df_example = pd.DataFrame({"a": [1, None, 2], "b": ["str", 2, 3]})
 
-    df_filtered = Model.parse_df(df_example, errors="filter", verbose=True)
+  validator = Pandantic(schema=Model)
