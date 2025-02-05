@@ -22,6 +22,6 @@ Contents
 
 .. toctree::
 
-   validator_api
-   pandas_plugin
    usage
+   pandas_plugin
+   api
