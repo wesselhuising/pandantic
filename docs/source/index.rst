@@ -56,10 +56,11 @@ Here's a simple example demonstrating how to validate a pandas DataFrame:
 
 Key Features
 -----------
-- Validate DataFrame columns against Pydantic models
-- Two validation modes: skip invalid rows or raise errors
-- Full compatibility with Pydantic's type system and validators
-- Simple, intuitive API following pandas conventions
+- Validate or filter DataFrame rows using Pydantic models.
+- Different "`errors`" modes to control invalid data handling.
+- Full compatibility with Pydantic's type system and validators.
+- Simple, intuitive API following pandas conventions.
+- Alternatively provides a `pandas` plugin API.
 
 
 Contents
