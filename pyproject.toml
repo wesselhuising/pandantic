@@ -30,6 +30,11 @@ safety = "^2.3.5"
 scikit-learn = "^1.2.2"
 pandera = "^0.14.5"
 
+[tool.poetry.group.notebook.dependencies]
+jupyterlab = "*"
+jupyterlab-lsp = "*"
+python-lsp-server = "*"
+
 [tool.isort]
 profile = "black"
 lines_after_imports = 2
