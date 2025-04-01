@@ -1,6 +1,7 @@
 # Project specific
 *.code-workspace
 *.csv
+!titanic.csv
 *.DS_Store
 
 # Byte-compiled / optimized / DLL files
