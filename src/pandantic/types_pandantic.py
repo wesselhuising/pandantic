@@ -19,7 +19,7 @@ def coerce_nan_to_none(x: Any) -> Any:
     if x is None:
         return None
 
-    if math.isnan(x):
+    if isinstance(x, (float, int)) and math.isnan(x):
         return None
 
     return x
