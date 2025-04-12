@@ -1,8 +1,8 @@
-from typing import Union
+from typing import Union, TypeAlias
 
 import pandas as pd
 import pydantic
 
 
-SchemaTypes = Union[pydantic.BaseModel]
-TableTypes = Union[pd.DataFrame]
+SchemaTypes: TypeAlias = Union[type[pydantic.BaseModel]]
+TableTypes: TypeAlias = Union[pd.DataFrame]
